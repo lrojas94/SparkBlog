@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="container-fluid" id="header-container">
-    <#if (is_logged?? && !is_logged) || !(is_logged??)>
+    <#if (logged_in?? && !logged_in) || !(logged_in??)>
     <button id="login_btn" class="btn btn-primary" data-toggle="modal" data-target="#login_modal">Iniciar Sesion</button>
     <#else>
         <div id="login_status" class="col-xs-2">
@@ -22,6 +22,20 @@
     </div>
 </div>
 <#include "./navbar.ftl">
+<#if message_type??>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- ALERTS -->
+            <div class="alert alert-${message_type}"">
+            	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            	<strong>${message}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+</#if>
 <#if template_name??>
     <#include template_name>
 </#if>

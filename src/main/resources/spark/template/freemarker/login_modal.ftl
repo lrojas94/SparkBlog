@@ -12,14 +12,14 @@
                         <div class="form-group">
                             <label for="username" class="col-xs-12 control-label">Nombre de Usuario</label>
                             <div class="col-xs-12">
-                                <input type="text" class="form-control" id="username" required>
+                                <input type="text" class="form-control" name='username' id="username" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="password" class="col-xs-12 control-label">Contrasena</label>
                             <div class="col-xs-12">
-                                <input type="password" class="form-control" id="password" placeholder="" required>
+                                <input type="password" name='password' class="form-control" id="password" placeholder="" required>
                             </div>
                         </div>
                     </div>
