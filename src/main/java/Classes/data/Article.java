@@ -1,38 +1,45 @@
 package Classes.data;
 
 import java.util.Date;
-import java.util.List;
+
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by MEUrena on 5/31/16.
  * All rights reserved.
  */
+@DatabaseTable(tableName = "articles")
 public class Article {
+
+    @DatabaseField(generatedId = true)
     private int id;
+    @DatabaseField(columnName = "title", canBeNull = false)
     private String title;
+    @DatabaseField(columnName = "body", canBeNull = false)
     private String body;
+    @DatabaseField(columnName = "date_published", canBeNull = false)
     private Date datePublished;
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private User author;
-    private List<Tag> tags;
-    private List<Comment> comments;
+    @ForeignCollectionField
+    private ForeignCollection<Tag> tags;
+    @ForeignCollectionField
+    private ForeignCollection<Comment> comments;
 
     public Article() {}
 
-    public Article(int id, String title, String body, Date datePublished, User author, List<Tag> tags) {
-        this.id = id;
+    public Article(String title, String body, Date datePublished, User author) {
         this.title = title;
         this.body = body;
         this.datePublished = datePublished;
         this.author = author;
-        this.tags = tags;
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -67,11 +74,9 @@ public class Article {
         this.author = author;
     }
 
-    public List<Tag> getTags() {
+    public ForeignCollection<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
+    public ForeignCollection<Comment> getComments() { return comments; }
 }

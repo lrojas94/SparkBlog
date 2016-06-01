@@ -16,5 +16,7 @@ dependencies {
     compile group: 'org.freemarker', name: 'freemarker', version: '2.3.14'
     compile group: 'com.sparkjava', name: 'spark-template-freemarker', version: '2.3'
     compile group: 'com.h2database', name: 'h2', version: '1.4.192'
+    compile group: 'com.j256.ormlite', name: 'ormlite-core', version: '4.48'
+    compile group: 'com.j256.ormlite', name: 'ormlite-jdbc', version: '4.48'
 }
 
