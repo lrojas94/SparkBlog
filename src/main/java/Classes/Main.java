@@ -50,7 +50,7 @@ public class Main {
             String username = request.queryParams("username");
             String password = request.queryParams("password");
             //Encrypt (?)
-            q
+            
             response.redirect("/");
             return null;
         });
