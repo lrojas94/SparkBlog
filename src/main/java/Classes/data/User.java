@@ -70,4 +70,9 @@ public class User {
     public void setAuthor(Boolean author) {
         this.author = author;
     }
+
+    @Override
+    public String toString() {
+        return username;
+    }
 }
