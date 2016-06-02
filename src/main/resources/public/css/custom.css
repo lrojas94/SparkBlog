@@ -82,7 +82,7 @@ html,body{
     padding-right: 0px;
 }
 
-.jumbotron,.btn,.modal-content{
+.jumbotron,.btn,.modal-content,input{
     border-radius: 0px !important;
 }
 
