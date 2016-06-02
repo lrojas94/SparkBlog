@@ -3,6 +3,7 @@ package Classes.data;
 import java.util.Date;
 
 import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -18,7 +19,7 @@ public class Article {
     private int id;
     @DatabaseField(columnName = "title", canBeNull = false)
     private String title;
-    @DatabaseField(columnName = "body", canBeNull = false)
+    @DatabaseField(columnName = "body", canBeNull = false,dataType = DataType.LONG_STRING)
     private String body;
     @DatabaseField(columnName = "date_published", canBeNull = false)
     private Date datePublished;

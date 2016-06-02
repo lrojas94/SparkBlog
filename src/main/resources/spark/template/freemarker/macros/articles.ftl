@@ -12,10 +12,10 @@
             <p class="article-preview">${articleBody?substring(0, maxLength)}</p>
         </div>
         <div class="col-xs-8">
-            <p><b>Escrito por</b>: <a href="/users/${article.getAuthor()}">${article.getAuthor()} <i class="fa fa-user"></i></a></p>
+            <p><b>Escrito por</b>: <a href="/user/${article.getAuthor().getId()}">${article.getAuthor()} <i class="fa fa-user"></i></a></p>
         </div>
         <div class="col-xs-4 text-right">
-            <a href="/articles/${article.getId()}" >Leer mas</a>
+            <a href="/articles/show/${article.getId()}" >Leer mas</a>
         </div>
         <div class="col-xs-12 article-tags">
             <p>

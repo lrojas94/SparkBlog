@@ -5,6 +5,7 @@
     <title>SparkBlog</title>
     <link rel="stylesheet" href="/bower/bootstrap/dist/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/bower/font-awesome/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/bower/datatables.net-bs/css/dataTables.bootstrap.min.css" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/css/custom.css" type="text/css">
 </head>
@@ -47,5 +48,8 @@
 <#include "./login_modal.ftl">
 <script src="/bower/jquery/dist/jquery.min.js"></script>
 <script src="/bower/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="/bower/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="/bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<script src="/js/custom.js"></script>
 </body>
 </html>

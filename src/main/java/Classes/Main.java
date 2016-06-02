@@ -182,6 +182,55 @@ public class Main {
 
         before("/test",new AuthFilter(new FreeMarkerEngine()));
 
+        // -------------------------------- USER CRUD -------------------------------------------------------------- //
+        get("/user/:id",(request, response) -> {
+            Map<String,Object> attributes = request.attribute(modelParam);
+            //Get the user:
+            int userId = Integer.parseInt(request.params("id"));
+            ConnectionSource con = dbHandler.getConnection();
+            Dao<User,Integer> userDao = dbHandler.getUserDao();
+            Dao<Article,Integer> articleDao = null;
+            try{
+                User user = userDao.queryForId(userId);
+                ArrayList<Article> articles = new ArrayList<Article>();
+                //---- TEST ----//
+                Article test = new Article();
+                test.setTitle("Test Title");
+                test.setDatePublished(new Date());
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                articles.add(test);
+                //--- END TEST ---//
+                //articles = articleDao.queryForEq("author",user.getId()); //TODO: Uncomment this after Dao is working.
+                attributes.put("User",user);
+                attributes.put("articles",articles);
+
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+            finally{
+                con.close();
+            }
+
+            attributes.put("template_name","./users/show.ftl");
+
+            return renderer.render(new ModelAndView(attributes,baseLayout));
+        });
+        // -------------------------------- FINISH USER CRUD -------------------------------------------------------------- //
+
+
     }
 
 }
