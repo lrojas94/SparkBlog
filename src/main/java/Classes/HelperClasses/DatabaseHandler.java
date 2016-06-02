@@ -52,10 +52,6 @@ public class DatabaseHandler {
         }
     }
 
-    public Dao<User, Integer> getUserDao() {
-        return userDao;
-    }
-
     public static ConnectionSource getConnection() {
         if (cs == null) {
             startDatabaseConnection();
@@ -75,6 +71,50 @@ public class DatabaseHandler {
                 e.printStackTrace();
             }
         }
+    }
+
+    public Dao<User, Integer> getUserDao() {
+        if (userDao == null) {
+            try {
+                userDao = DaoManager.createDao(cs, User.class);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return userDao;
+    }
+
+    public Dao<Article, Integer> getArticleDao() {
+        if (articleDao == null) {
+            try {
+                articleDao = DaoManager.createDao(cs, Article.class);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return articleDao;
+    }
+
+    public Dao<Tag, Integer> getTagDao() {
+        if (tagDao == null) {
+            try {
+                tagDao = DaoManager.createDao(cs, Tag.class);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return tagDao;
+    }
+
+    public Dao<Comment, Integer> getCommentDao() {
+        if (commentDao == null) {
+            try {
+                commentDao = DaoManager.createDao(cs, Comment.class);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return commentDao;
     }
 
     public void createAllTables() {

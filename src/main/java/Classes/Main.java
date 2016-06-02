@@ -143,6 +143,66 @@ public class Main {
             return null;
         });
 
+        get("/article/add", (request, response) -> {
+            Map<String, Object> attributes = request.attribute(modelParam);
+            attributes.put("template_name","./articles/addArticle.ftl");
+            return renderer.render(new ModelAndView(attributes, baseLayout));
+        });
+
+        post("/article/add", (request, response) -> {
+            Map<String,Object> attributes = request.attribute(modelParam);
+            //get fields:
+            String articleTitle = request.queryParams("article_title");
+            String articleBody = request.queryParams("article_body");
+            List<String> articleTags = Arrays.asList(request.queryParams("article_tags").split(", "));
+
+            //Prepare errors:
+            ArrayList<String> errors = new ArrayList<String>();
+
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
+            Dao<Tag,Integer> tagDao = dbHandler.getTagDao();
+            try {
+                if (articleTitle == null || articleTitle == "") {
+                    errors.add("No es posible dejar el campo de título vacio.");
+                }
+                if (articleBody == null || articleBody == "") {
+                    errors.add("No es posible dejar el campo de cuerpo vacio.");
+                }
+
+                if (errors.size() == 0) {
+                    User user = request.session().attribute("user");
+                    Date publishedDate = new Date();
+                    Article article = new Article(articleTitle, articleBody, publishedDate, user);
+
+                    if (articleDao.create(article) == 1) {
+                        for (String tagTitle : articleTags) {
+                            Tag tag = new Tag(tagTitle, article);
+                            tagDao.create(tag);
+                        }
+
+                        response.redirect("/");
+                    } else {
+                        errors.add("ERROR EN BASE DE DATOS");
+                        attributes.put("errors", errors);
+                        attributes.put("template_name","./articles/addArticle.ftl");
+                        return renderer.render(new ModelAndView(attributes,baseLayout));
+                    }
+                } else {
+                    attributes.put("errors", errors);
+                    attributes.put("template_name","./articles/addArticle.ftl");
+                    return renderer.render(new ModelAndView(attributes,baseLayout));
+                }
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+            return null;
+        });
+
         post("/login", (request, response) -> {
             Map<String,Object> attributes = request.attribute(modelParam);
             //Get variables:
