@@ -17,15 +17,56 @@
         <div class="col-xs-4 text-right">
             <a href="/articles/show/${article.getId()}" >Leer mas</a>
         </div>
-        <div class="col-xs-12 article-tags">
-            <p>
-                Tags <i class="fa fa-tags"></i>:
-                <#assign Tags = article.getTags()>
-                <#list Tags as tag>
-                    <a href="/tags/${tag.getId()}">${tag.getDescription()}</a>
+        <#assign ArticleTags = article.getArticleTags()>
+        <#if ArticleTags?size != 0>
+            <div class="col-xs-12 article-tags">
+                <p>
+                    Tags <i class="fa fa-tags"></i>:
+                    <#list ArticleTags as articleTag>
+                        <a href="/tags/${articleTag.tag.getId()}">${articleTag.tag.getDescription()}</a>
+                    </#list>
+                </p>
+            </div>
+        </#if>
+    </div>
+</div>
+</#macro>
+
+<#macro show_user_article_table articles>
+<div class="row"> <!-- Articles Written -->
+    <div class="col-xs-12">
+        <table class="table table-striped table-hover" id="show-user-articles">
+            <thead>
+            <th>Titulo del Articulo</th>
+            <th>Fecha de Publicacion</th>
+                <#if user?? && User.getId() = user.getId()>
+                <th>Opciones</th>
+                </#if>
+            </thead>
+            <tbody>
+                <#list articles as article>
+                <tr>
+                    <td><a href="/article/${article.getId()}">${article.getTitle()}</a></td>
+                    <td>${article.getDatePublished()?date}</td>
+                    <#if user?? && User.getId() = user.getId()>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+                                    Menu
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="/article/${article.getId()}"><i class="fa fa-eye"></i> Ver</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="/article/edit/${article.getId()}"><i class="fa fa-pencil"></i> Editar</a></li>
+                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="/article/delete/${article.getId()}"><i class="fa fa-exclamation-triangle"></i> Borrar</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </#if>
+                </tr>
                 </#list>
-            </p>
-        </div>
+            </tbody>
+        </table>
     </div>
 </div>
 </#macro>

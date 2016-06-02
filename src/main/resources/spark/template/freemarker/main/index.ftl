@@ -4,7 +4,7 @@
         <div class="col-xs-12">
             <div class="pop-out">
                 <div class="col-xs-12 title">
-                    <h4>Articulos</h4>
+                    <h2>Articulos</h2>
                 </div>
                 <div class="col-xs-12">
                     <#include "./articles_list.ftl">

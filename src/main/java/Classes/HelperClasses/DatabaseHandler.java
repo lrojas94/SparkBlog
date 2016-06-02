@@ -3,21 +3,15 @@ package Classes.HelperClasses;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 
 import Classes.data.*;
-import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.dao.ForeignCollection;
-import com.j256.ormlite.misc.TransactionManager;
-import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.sun.xml.internal.bind.v2.model.core.ID;
 
 import static Classes.data.Constants.*;
 
@@ -32,6 +26,7 @@ public class DatabaseHandler {
     private static Dao<Article, Integer> articleDao = null;
     private static Dao<Comment, Integer> commentDao = null;
     private static Dao<Tag, Integer> tagDao = null;
+    private static Dao<ArticleTag,ID> articleTagDao = null;
 
     private static DatabaseHandler instance = null;
     protected DatabaseHandler() {}
@@ -106,6 +101,17 @@ public class DatabaseHandler {
         return tagDao;
     }
 
+    public Dao<ArticleTag, ID> getArticleTagDao() {
+        if (articleTagDao == null) {
+            try {
+                articleTagDao = DaoManager.createDao(cs, ArticleTag.class);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return articleTagDao;
+    }
+
     public Dao<Comment, Integer> getCommentDao() {
         if (commentDao == null) {
             try {
@@ -123,6 +129,8 @@ public class DatabaseHandler {
             TableUtils.createTableIfNotExists(cs, Article.class);
             TableUtils.createTableIfNotExists(cs, Tag.class);
             TableUtils.createTableIfNotExists(cs, Comment.class);
+            TableUtils.createTableIfNotExists(cs, ArticleTag.class);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

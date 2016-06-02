@@ -1,6 +1,8 @@
 package Classes.data;
 
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 /**
@@ -14,14 +16,13 @@ public class Tag {
     private int id;
     @DatabaseField(columnName = "description", canBeNull = false)
     private String description;
-    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
-    private Article article;
+    @ForeignCollectionField
+    private ForeignCollection<ArticleTag> articleTags;
 
     public Tag() {}
 
     public Tag(String description, Article article) {
         this.description = description;
-        this.article = article;
     }
 
     public int getId() {
@@ -36,5 +37,12 @@ public class Tag {
         this.description = description;
     }
 
-    public Article getArticle() { return article; }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Tag){
+            return ((Tag) obj).getDescription().equals(description);
+        }
+        return super.equals(obj);
+    }
 }

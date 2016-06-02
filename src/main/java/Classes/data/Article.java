@@ -1,6 +1,7 @@
 package Classes.data;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
@@ -26,7 +27,7 @@ public class Article {
     @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private User author;
     @ForeignCollectionField
-    private ForeignCollection<Tag> tags;
+    private ForeignCollection<ArticleTag> articleTags;
     @ForeignCollectionField
     private ForeignCollection<Comment> comments;
 
@@ -75,9 +76,16 @@ public class Article {
         this.author = author;
     }
 
-    public ForeignCollection<Tag> getTags() {
-        return tags;
+    public ForeignCollection<ArticleTag> getArticleTags() {
+        return articleTags;
     }
 
     public ForeignCollection<Comment> getComments() { return comments; }
+
+    public String getFormattedTags(){
+        if(getArticleTags() == null){
+            return  "";
+        }
+        return getArticleTags().stream().map((articleTag -> articleTag.getTag().getDescription())).collect(Collectors.joining(","));
+    }
 }
