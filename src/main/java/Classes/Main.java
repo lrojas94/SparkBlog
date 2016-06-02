@@ -254,30 +254,11 @@ public class Main {
             int userId = Integer.parseInt(request.params("id"));
             ConnectionSource con = dbHandler.getConnection();
             Dao<User,Integer> userDao = dbHandler.getUserDao();
-            Dao<Article,Integer> articleDao = null;
+            Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
             try{
                 User user = userDao.queryForId(userId);
-                ArrayList<Article> articles = new ArrayList<Article>();
-                //---- TEST ----//
-                Article test = new Article();
-                test.setTitle("Test Title");
-                test.setDatePublished(new Date());
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                articles.add(test);
-                //--- END TEST ---//
-                //articles = articleDao.queryForEq("author",user.getId()); //TODO: Uncomment this after Dao is working.
+                List<Article> articles = new ArrayList<Article>();
+                articles = articleDao.queryForEq("author_id",user.getId());
                 attributes.put("User",user);
                 attributes.put("articles",articles);
 
