@@ -159,7 +159,7 @@ public class Main {
             //get fields:
             String articleTitle = request.queryParams("article_title");
             String articleBody = request.queryParams("article_body");
-            List<String> articleTags = Arrays.asList(request.queryParams("article_tags").split(", "));
+            List<String> articleTags = Arrays.asList(request.queryParams("article_tags").split("\\s*(,|\\s)\\s*"));
 
             //Prepare errors:
             ArrayList<String> errors = new ArrayList<String>();

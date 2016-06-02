@@ -142,15 +142,10 @@ public class DatabaseHandler {
     public static List<Article> getArticlesWithLimit(int start, int limit) {
         List<Article> results = new ArrayList<>();
         try {
-            CloseableIterator<Article> iterator = articleDao.closeableIterator();
-            for (int i = start; i < limit; i++) {
-                if (iterator.hasNext()) {
-                    results.add(iterator.next());
-                } else {
-                    iterator.close();
-                    break;
-                }
-            }
+            QueryBuilder query = articleDao.queryBuilder();
+            query.offset((long)start).limit((long)limit);
+            query.orderBy("date_published", false);
+            results = articleDao.query(query.prepare());
         } catch (SQLException e) {
             e.printStackTrace();
         }
