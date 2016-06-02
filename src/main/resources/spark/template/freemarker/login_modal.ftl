@@ -19,7 +19,7 @@
                         <div class="form-group">
                             <label for="password" class="col-xs-12 control-label">Contrasena</label>
                             <div class="col-xs-12">
-                                <input type="password" name='password' class="form-control" id="password" placeholder="" required>
+                                <input type="password" name='password' class="form-control" id="password"  required>
                             </div>
                         </div>
                     </div>
@@ -27,10 +27,10 @@
                 <div class="modal-footer">
                     <div class="row">
                         <div class="col-xs-6">
-                            <a href="/sign_up" class="btn btn-info btn-block">Registrate</a>
+                            <a href="/signup" class="btn btn-info btn-block">Registrate</a>
                         </div>
                         <div class="col-xs-6">
-                            <input type="submit" class="btn btn-primary btn-block" value="Iniciar Sesion"/>
+                            <input type="submit" class="btn btn-primary btn-block" value="Iniciar Sesion" required/>
                         </div>
                     </div>
                 </div>

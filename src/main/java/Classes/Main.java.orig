@@ -46,10 +46,14 @@ public class Main {
         });
 
         get("/",(request,response) -> {
+<<<<<<< HEAD
             ConnectionSource conn = dbHandler.getConnection();
             List<Article> articles = dbHandler.getArticlesWithLimit(0, 20);
             conn.close();
+            Map<String,Object> attributes = request.attribute("model");
+=======
             Map<String,Object> attributes = request.attribute(modelParam);
+>>>>>>> tmp
             attributes.put("template_name","./main/index.ftl");
             attributes.put("articles", articles);
 
