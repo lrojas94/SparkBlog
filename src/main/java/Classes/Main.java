@@ -19,6 +19,7 @@ import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * Created by luis on 5/30/16.
@@ -41,9 +42,18 @@ public class Main {
 
         TemplateEngine renderer = new FreeMarkerEngine();
 
-        dbHandler.getConnection();
-        dbHandler.createAllTables();
-        dbHandler.closeConnection();
+        Preferences userPrefs = Preferences.userRoot();
+        Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
+        if (isFirstRun) {
+            System.out.println("running for the first time");
+            dbHandler.getConnection();
+            dbHandler.createAllTables();
+            User firstUser = new User("admin", "Administrator", "admin", true, true);
+            Dao<User, Integer> userDao = dbHandler.getUserDao();
+            userDao.create(firstUser);
+            dbHandler.closeConnection();
+            userPrefs.putBoolean("first_run", false);
+        }
 
         before((request, response) -> {
             //Add base model to everything:
