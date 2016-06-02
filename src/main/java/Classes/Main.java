@@ -3,6 +3,7 @@ package Classes;
 import static spark.Spark.*;
 
 import Classes.HelperClasses.AuthFilter;
+import Classes.HelperClasses.AuthRoles;
 import Classes.HelperClasses.DatabaseHandler;
 import Classes.data.*;
 import com.j256.ormlite.dao.CloseableIterator;
@@ -142,6 +143,10 @@ public class Main {
 
             return null;
         });
+
+        before("/article/add",new AuthFilter(new FreeMarkerEngine(), new HashSet<AuthRoles>() {{
+            add(AuthRoles.AUTHOR);
+        }}));
 
         get("/article/add", (request, response) -> {
             Map<String, Object> attributes = request.attribute(modelParam);
