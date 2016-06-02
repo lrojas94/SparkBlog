@@ -33,14 +33,6 @@ public class Main {
         dbHandler.createAllTables();
         dbHandler.closeConnection();
 
-        get("/",(request,response) -> {
-            ConnectionSource conn = dbHandler.getConnection();
-            List<Article> articles = dbHandler.getArticlesWithLimit(0, 20);
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
         before("*", (request, response) -> {
             //Add base model to everything:
             Map<String,Object> attributes = new HashMap<String, Object>();
@@ -50,6 +42,9 @@ public class Main {
         });
 
         get("/",(request,response) -> {
+            ConnectionSource conn = dbHandler.getConnection();
+            List<Article> articles = dbHandler.getArticlesWithLimit(0, 20);
+            conn.close();
             Map<String,Object> attributes = request.attribute("model");
             attributes.put("template_name","./main/index.ftl");
             attributes.put("articles", articles);
