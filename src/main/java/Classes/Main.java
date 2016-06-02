@@ -4,7 +4,8 @@ import static spark.Spark.*;
 
 import Classes.HelperClasses.AuthFilter;
 import Classes.HelperClasses.DatabaseHandler;
-import Classes.data.User;
+import Classes.data.*;
+import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -23,14 +24,18 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws Exception {
         staticFiles.location("/public");
+
         DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+
         TemplateEngine renderer = new FreeMarkerEngine();
 
+        dbHandler.getConnection();
+        dbHandler.createAllTables();
+        dbHandler.closeConnection();
 
-        try {
+        get("/",(request,response) -> {
             ConnectionSource conn = dbHandler.getConnection();
-            dbHandler.createAllTables();
-            dbHandler.closeConnection();
+            List<Article> articles = dbHandler.getArticlesWithLimit(0, 20);
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,6 +52,7 @@ public class Main {
         get("/",(request,response) -> {
             Map<String,Object> attributes = request.attribute("model");
             attributes.put("template_name","./main/index.ftl");
+            attributes.put("articles", articles);
 
             if(request.cookie("message_type") != null){ //Redirect messages
 
@@ -98,5 +104,7 @@ public class Main {
         });
 
         before("/test",new AuthFilter(new FreeMarkerEngine()));
+
     }
+
 }

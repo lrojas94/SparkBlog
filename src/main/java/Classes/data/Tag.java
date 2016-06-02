@@ -14,13 +14,14 @@ public class Tag {
     private int id;
     @DatabaseField(columnName = "description", canBeNull = false)
     private String description;
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Article article;
 
     public Tag() {}
 
-    public Tag(String description) {
+    public Tag(String description, Article article) {
         this.description = description;
+        this.article = article;
     }
 
     public int getId() {

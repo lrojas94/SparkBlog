@@ -15,7 +15,7 @@ public class Comment {
     private String description;
     @DatabaseField(canBeNull = false, foreign = true)
     private User author;
-    @DatabaseField(canBeNull = false, foreign = true)
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
     private Article article;
 
     public Comment() {}
