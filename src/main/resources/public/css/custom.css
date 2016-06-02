@@ -39,11 +39,24 @@ html,body{
     right: 0%;
 }
 
+
 #login_status{
     padding: 10px;
     color: white;
     background: rgba(0,0,0,0.4);
     text-align: center;
+    z-index: 20;
+}
+
+#login_status a{
+    color: white;
+}
+
+#login_status a:hover{
+    text-decoration: none;
+    cursor: pointer;
+    color: #ecf0f1;
+
 }
 
 .title{

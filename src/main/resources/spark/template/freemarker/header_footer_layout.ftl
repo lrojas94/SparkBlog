@@ -15,7 +15,7 @@
     <button id="login_btn" class="btn btn-primary" data-toggle="modal" data-target="#login_modal">Iniciar Sesion</button>
     <#else>
         <div id="login_status" class="col-xs-2">
-            <span>Saludos ${user.getName()} <i class="fa fa-user"></i></span>
+            <a href="/user/${user.getId()}">Saludos ${user.getName()} <i class="fa fa-user"></i></a>
         </div>
     </#if>
         <div class="jumbotron" id="header">

@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <!-- ARTICULOS -->
-        <div class="col-md-10 col-xs-12">
+        <div class="col-xs-12">
             <div class="pop-out">
                 <div class="col-xs-12 title">
                     <h4>Articulos</h4>
@@ -31,15 +31,6 @@
                     </li>
                 </ul>
             </nav>
-        </div>
-
-        <!--- RECIENTES --->
-        <div class="col-md-2 col-xs-12">
-            <div class="pop-out">
-                <div class="col-xs-12 title">
-                    <h4>Recientes</h4>
-                </div>
-            </div>
         </div>
     </div>
 </div>

@@ -9,7 +9,7 @@
             ${User.getName()}
             <#if User.getAdministrator()>
                 <small>(Administrador)</small>
-            <#else>
+            <#elseif User.getAuthor()>
                 <small>(Autor)</small>
             </#if>
             </h1>
