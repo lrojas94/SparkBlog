@@ -456,8 +456,8 @@ public class Main {
                         }
 
                         Map<String,Object> fieldValues = new HashMap<>();
-                        fieldValues.put("article",article);
-                        fieldValues.put("tag",tag);
+                        fieldValues.put("article_id",article);
+                        fieldValues.put("tag_id",tag);
 
                         if(is_edit && articleTagDao.queryForFieldValues(fieldValues).size() != 0)
                             continue;

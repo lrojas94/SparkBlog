@@ -52,6 +52,7 @@ var Comments = function(){
         pageLength: 5,
         lengthMenu: [],
         ordering: false,
+        order: [[1,'desc']],
         searching: false,
         lengthChange: false
     });
@@ -75,7 +76,7 @@ var Comments = function(){
                     var comment = '<a href="/user/'+Comment.author.id+'"><h4>'
                         +Comment.author.username+'</h4></a>'+
                         '<p>'+Comment.description+'</p>';
-                    $('#article-comment-table').DataTable().row.add([comment]).draw();
+                    $('#article-comment-table').DataTable().row.add([comment,Comment.id]).sort().draw();
                 }
             }
         })

@@ -11,7 +11,7 @@
                 <i class="fa fa-tags"></i> Tags:
                 <#assign ArticleTags = article.getArticleTags()>
                 <#list ArticleTags as articleTag>
-                    <a href="/tag/${articleTag.getTag().getId()}">#${articleTag.getTag().getDescription()}</a>
+                    <a href="/tags/${articleTag.getTag().getId()}">#${articleTag.getTag().getDescription()}</a>
                 </#list>
             </p>
         </div>
@@ -40,6 +40,7 @@
                 <table id="article-comment-table" class="table table-responsive table-striped">
                     <thead>
                         <th>Comentarios</th>
+                        <th hidden>Ids</th>
                     </thead>
                     <tbody>
                         <#list Comments as comment>
@@ -49,6 +50,7 @@
                                     <a href="/user/${author.getId()}"><h4>${author}</h4></a>
                                     <p>${comment.getDescription()}</p>
                                 </td>
+                                <td hidden>${comment.getId()}</td>
                             </tr>
                         </#list>
                     </tbody>
