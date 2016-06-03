@@ -51,7 +51,11 @@ var Comments = function(){
         language: HelpersNamespace.DTLanguage,
         pageLength: 5,
         lengthMenu: [],
-        ordering: false,
+        ordering: true,
+        columnDefs:[
+            { orderable : false, targets: 0},
+            { visible: false, targets: 1}
+        ],
         order: [[1,'desc']],
         searching: false,
         lengthChange: false
@@ -77,8 +81,38 @@ var Comments = function(){
                         +Comment.author.username+'</h4></a>'+
                         '<p>'+Comment.description+'</p>';
                     $('#article-comment-table').DataTable().row.add([comment,Comment.id]).sort().draw();
+                    $('#add-comment-errors').html("");
+                    $('#comment-input').val("");
+                }
+                else if(data.status === "error"){
+                    var alert = $('<div>').
+                                addClass("alert alert-danger").
+                                append('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>').
+                                append(data.errors.join("\n"));
+
+                    $('#add-comment-errors').html(alert);
                 }
             }
+        })
+    });
+
+    $('.delete-comment').click(function(e){
+       e.preventDefault();
+        $.ajax({
+            url: $(this).attr("href"),
+            dataType: 'json',
+            method: "POST",
+            success: function(data){
+                if(data.status === "success"){
+                    //remove from row.
+                    var table = $('#article-comment-table').DataTable();
+                    var index = table.
+                        column(1).
+                        data().indexOf(data.returnObject.id.toString());
+                    table.row(index).remove().draw();
+                }
+            }
+
         })
     });
 };

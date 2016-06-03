@@ -366,6 +366,13 @@ public class Main {
                 return status;
             }
 
+            if(jsonComment.getComment().length() <= 10){
+                status.setStatus("error");
+                status.getErrors().add("Comentario muy corto");
+
+                return status;
+            }
+
             Classes.data.Comment comment = new Classes.data.Comment(jsonComment.getComment(),user,article);
 
             if(commentDao.create(comment) == 1){
@@ -378,6 +385,26 @@ public class Main {
                 status.setStatus("error");
                 status.getErrors().add("Error insertando en la base de datos.");
                 return status;
+            }
+        },gson::toJson);
+
+        post("/comment/delete/:id",(request, response) -> {
+            int id = Integer.parseInt(request.params("id"));
+
+
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<Classes.data.Comment,Integer> commentDao = dbHandler.getCommentDao();
+            Classes.data.Comment comment = commentDao.queryForId(id);
+            if(commentDao.delete(comment) == 1){
+                ActionStatus status = new ActionStatus();
+                status.setStatus("success");
+                status.setReturnObject(comment);
+                return status;
+            }
+            else{
+                ActionStatus status = new ActionStatus();
+                status.setStatus("error");
+                return  status;
             }
         },gson::toJson);
 

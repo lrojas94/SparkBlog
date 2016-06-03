@@ -17,21 +17,24 @@
         </div>
     </div>
     <!-- COMMENTS FORM -->
-    <div class="row">
-        <div class="col-xs-12">
-            <form action="/comment/add" method="post" id="add-comment-form" role="form">
-            	<legend>Deja un comentario!</legend>
+    <#if user??>
+        <div class="row">
+            <div class="col-xs-12">
+                <form action="/comment/add" method="post" id="add-comment-form" role="form">
+                    <legend>Deja un comentario!</legend>
+                    <div id="add-comment-errors"></div>
                     <input type="hidden" value="${article.getId()}" name="articleId">
-            	<div class="form-group">
-            		<label for="comment-input">Comentario</label>
-            		<input type="text" class="form-control" name="comment" id="comment-input"
-                           placeholder="Commentario" required>
-            	</div>
-            	<button type="submit" class="btn btn-primary pull-right">Enviar comentario</button>
-                <br>
-            </form>
+                    <div class="form-group">
+                        <label for="comment-input">Comentario</label>
+                        <input type="text" class="form-control" name="comment" id="comment-input"
+                               placeholder="Minimo 10 caracteres..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary pull-right">Enviar comentario</button>
+                    <br>
+                </form>
+            </div>
         </div>
-    </div>
+    </#if>
 
     <#if article.getComments()??>
         <#assign Comments = article.getComments()>
@@ -48,7 +51,14 @@
                             <tr>
                                 <td>
                                     <a href="/user/${author.getId()}"><h4>${author}</h4></a>
-                                    <p>${comment.getDescription()}</p>
+                                    <p>
+                                    ${comment.getDescription()}
+                                    <#if user?? && (article.getAuthor() = user || user.getAdministrator())>
+                                        <a href="/comment/delete/${comment.getId()}" class="delete-comment pull-right">
+                                            <i class="fa fa-exclamation-triangle"></i> Eliminar
+                                        </a>
+                                    </#if>    
+                                    </p>
                                 </td>
                                 <td hidden>${comment.getId()}</td>
                             </tr>
