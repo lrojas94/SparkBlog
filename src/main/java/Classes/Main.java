@@ -208,7 +208,7 @@ public class Main {
         });
 
         post("/article/add", (request, response) -> {
-            return articleAddEdit(request,response,null,false);
+            return renderer.render(articleAddEdit(request,response,null,false));
         });
 
         before("/article/edit/:id",new ArticleAuthorFilter(renderer));
@@ -427,6 +427,12 @@ public class Main {
         Dao<Tag,Integer> tagDao = dbHandler.getTagDao();
         Dao<ArticleTag, Integer> articleTagDao = dbHandler.getArticleTagDao();
         try {
+            List<Article> sameArticles = articleDao.queryForEq("title", articleTitle);
+            if (sameArticles.size() != 0) {
+                // The article already exists
+                errors.add("Lo sentimos, pero este artículo ya existe.");
+            }
+
             if (articleTitle == null || articleTitle.equals("") ) {
                 errors.add("No es posible dejar el campo de título vacio.");
             }
