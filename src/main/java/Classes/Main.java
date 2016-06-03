@@ -46,6 +46,7 @@ public class Main {
         Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
 
         Preferences userPrefs = Preferences.userRoot();
+//        userPrefs.putBoolean("first_run", true);
         Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
         if (isFirstRun) {
             System.out.println("running for the first time");
@@ -379,6 +380,30 @@ public class Main {
                 return status;
             }
         },gson::toJson);
+
+        get("/tags/:tag", (request, response) -> {
+            Map<String, Object> attributes = request.attribute(MODEL_PARAM);
+            int tagId = Integer.parseInt(request.params(":tag"));
+
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<Tag, Integer> tagDao = dbHandler.getTagDao();
+            Dao<Article, Integer> articleDao = dbHandler.getArticleDao();
+            Tag tagToLook = null;
+            List<Article> articlesFromTag = null;
+            try {
+                tagToLook = tagDao.queryForId(tagId);
+                articlesFromTag = dbHandler.lookupArticlesForTag(tagToLook);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+            attributes.put("articles", articlesFromTag);
+            attributes.put("tag", tagToLook);
+            attributes.put("template_name", "./tags/show.ftl");
+            return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
+        });
     }
 
     private static ModelAndView articleAddEdit(Request request, Response response,Article article, boolean is_edit){
@@ -397,11 +422,10 @@ public class Main {
         //Prepare errors:
         ArrayList<String> errors = new ArrayList<String>();
 
-
         ConnectionSource conn = dbHandler.getConnection();
         Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
         Dao<Tag,Integer> tagDao = dbHandler.getTagDao();
-        Dao<ArticleTag,ID> articleTagDao = dbHandler.getArticleTagDao();
+        Dao<ArticleTag, Integer> articleTagDao = dbHandler.getArticleTagDao();
         try {
             if (articleTitle == null || articleTitle.equals("") ) {
                 errors.add("No es posible dejar el campo de título vacio.");

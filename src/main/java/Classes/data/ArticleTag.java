@@ -12,14 +12,14 @@ public class ArticleTag {
 
     @DatabaseField(generatedId = true)
     private int id;
-    @DatabaseField(columnName = "tag", canBeNull = false,foreign = true,foreignAutoRefresh = true)
-    private Tag tag;
-    @DatabaseField(columnName = "article", canBeNull = false,foreign = true,foreignAutoRefresh = true)
+    @DatabaseField(columnName = "article_id", foreign = true, foreignAutoRefresh = true)
     private Article article;
+    @DatabaseField(columnName = "tag_id", foreign = true, foreignAutoRefresh = true)
+    private Tag tag;
 
     public ArticleTag(){}
 
-    public ArticleTag(Article article,Tag tag) {
+    public ArticleTag(Article article, Tag tag) {
         this.article = article;
         this.tag = tag;
     }

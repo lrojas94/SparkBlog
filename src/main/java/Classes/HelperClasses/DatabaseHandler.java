@@ -7,11 +7,12 @@ import java.util.List;
 import Classes.data.*;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import com.sun.xml.internal.bind.v2.model.core.ID;
 
 import static Classes.data.Constants.*;
 
@@ -26,7 +27,7 @@ public class DatabaseHandler {
     private static Dao<Article, Integer> articleDao = null;
     private static Dao<Comment, Integer> commentDao = null;
     private static Dao<Tag, Integer> tagDao = null;
-    private static Dao<ArticleTag,ID> articleTagDao = null;
+    private static Dao<ArticleTag, Integer> articleTagDao = null;
 
     private static DatabaseHandler instance = null;
     protected DatabaseHandler() {}
@@ -101,7 +102,7 @@ public class DatabaseHandler {
         return tagDao;
     }
 
-    public Dao<ArticleTag, ID> getArticleTagDao() {
+    public Dao<ArticleTag, Integer> getArticleTagDao() {
         if (articleTagDao == null) {
             try {
                 articleTagDao = DaoManager.createDao(cs, ArticleTag.class);
@@ -142,6 +143,7 @@ public class DatabaseHandler {
             articleDao = DaoManager.createDao(cs, Article.class);
             tagDao = DaoManager.createDao(cs, Tag.class);
             commentDao = DaoManager.createDao(cs, Comment.class);
+            articleTagDao = DaoManager.createDao(cs, ArticleTag.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -159,6 +161,40 @@ public class DatabaseHandler {
         }
 
         return results;
+    }
+
+    /**
+     * Convenience methods to build and run our prepared queries.
+     */
+
+    private static PreparedQuery<Article> articlesForTagQuery = null;
+
+    public static List<Article> lookupArticlesForTag(Tag tag) throws SQLException {
+        if (articlesForTagQuery == null) {
+            articlesForTagQuery = makePostsForUserQuery();
+        }
+        articlesForTagQuery.setArgumentHolderValue(0, tag);
+        return articleDao.query(articlesForTagQuery);
+    }
+
+    /**
+     * Build our query for Post objects that match a User.
+     */
+    private static PreparedQuery<Article> makePostsForUserQuery() throws SQLException {
+        // build our inner query for UserPost objects
+        QueryBuilder<ArticleTag, Integer> articleTagQb = articleTagDao.queryBuilder();
+        // just select the post-id field
+        articleTagQb.selectColumns("article_id");
+        SelectArg userSelectArg = new SelectArg();
+        // you could also just pass in user1 here
+        articleTagQb.where().eq("tag_id", userSelectArg);
+
+        // build our outer query for Post objects
+        QueryBuilder<Article, Integer> postQb = articleDao.queryBuilder();
+        // where the id matches in the post-id from the inner query
+        postQb.where().in("id", articleTagQb);
+        postQb.orderBy("date_published", false);
+        return postQb.prepare();
     }
 
     public static void insertNewUser(User user) {
