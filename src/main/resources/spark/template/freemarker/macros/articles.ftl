@@ -2,7 +2,9 @@
 <div class="article-container">
     <div class="row">
         <div class="col-xs-12">
-            <h3 class="article-title">${article.getTitle()}</h3>
+            <a href="/article/view/${article.getId()}" >
+                <h3 class="article-title">${article.getTitle()}</h3>
+            </a>
             <#assign articleBody = article.getBody()>
             <#if articleBody?length &gt; 70>
                 <#assign maxLength = 70>
