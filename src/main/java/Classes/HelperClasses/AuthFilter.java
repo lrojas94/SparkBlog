@@ -33,7 +33,7 @@ public class AuthFilter extends CustomFilter {
         attributes.put("template_name",this.forbiddenTemplate);
         if(user == null){
             //Its not even logged in
-            attributes.put("message","Usted no ha iniciado sesion.");
+            attributes.put("forbidden_message","Usted no ha iniciado sesion.");
             spark.Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
         }
 
@@ -41,13 +41,13 @@ public class AuthFilter extends CustomFilter {
             switch (role){
                 case AUTHOR:
                     if(!user.getAuthor()){
-                        attributes.put("message","USTED NO ES UN AUTOR");
+                        attributes.put("forbidden_message","USTED NO ES UN AUTOR");
                         spark.Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
                     }
                     break;
                 case ADMIN:
                     if(!user.getAdministrator()){
-                        attributes.put("message","USTED NO ES ADMINISTRADOR");
+                        attributes.put("forbidden_message","USTED NO ES ADMINISTRADOR");
                         spark.Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
                     }
                     break;

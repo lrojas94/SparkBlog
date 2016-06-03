@@ -40,7 +40,7 @@
         <#assign Comments = article.getComments()>
         <div class="row">
             <div class="col-xs-12">
-                <table id="article-comment-table" class="table table-responsive table-striped">
+                <table id="article-comment-table" data-user-admin="${(user?? && (user.getAdministrator() || article.getAuthor().getId() = user.getId()))?string }" class="table table-responsive table-striped">
                     <thead>
                         <th>Comentarios</th>
                         <th hidden>Ids</th>
@@ -68,6 +68,16 @@
             </div>
         </div>
     </#if>
+</div>
 
-
+<div id="comment-template" hidden>
+    <a href="/user/" class="comment-author"><h4></h4></a>
+    <p class="comment-comment">
+        <!-- COMMENT ITSELF -->
+    <span class="comment-delete-link">
+        <a href="/comment/delete/" class="delete-comment pull-right">
+        <i class="fa fa-exclamation-triangle"></i> Eliminar
+        </a>
+    </span>
+    </p>
 </div>

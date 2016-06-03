@@ -4,13 +4,11 @@ import Classes.Main;
 import Classes.data.Article;
 import Classes.data.User;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.field.types.IntegerObjectType;
 import com.j256.ormlite.support.ConnectionSource;
 import spark.*;
 
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by luis on 6/1/16.
@@ -19,10 +17,13 @@ import java.util.Set;
 public class ArticleAuthorFilter extends CustomFilter {
 
     ConnectionSource conn = null;
+    boolean adminCanModify = true;
     Article article;
 
-    public ArticleAuthorFilter(TemplateEngine templateEngine){
+    public ArticleAuthorFilter(TemplateEngine templateEngine,boolean adminCanModify){
+
         super(templateEngine);
+        this.adminCanModify = adminCanModify;
     }
 
     @Override
@@ -43,18 +44,19 @@ public class ArticleAuthorFilter extends CustomFilter {
             attributes.put("template_name",this.forbiddenTemplate);
 
             if(user == null){
-                attributes.put("message","Usted no ha iniciado sesion.");
+                attributes.put("forbidden_message","Usted no ha iniciado sesion.");
                 Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
             }
             if(article.getAuthor().getId() != user.getId() ||
-                    (!article.getAuthor().equals(user) && !user.getAuthor())){
-                attributes.put("message","Este articulo no le pertenece.");
+                    (!article.getAuthor().equals(user) && !user.getAuthor()) ||
+                    !(adminCanModify && user.getAdministrator())){
+                attributes.put("forbidden_message","Este articulo no le pertenece.");
                 Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
             }
 
         }
         catch (NumberFormatException e){
-            Main.redirectWrongAddress(response);
+            Main.redirectWrongAddress(request,response);
         }
         catch (SQLException e){
             System.out.println(e.getMessage());

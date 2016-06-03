@@ -25,12 +25,6 @@
                     <li><a href="/admin"><i class="fa fa-users"></i> Sitio Admin</a></li>
                 </#if>
             </ul>
-            <form class="navbar-form navbar-right" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Buscar">
-                </div>
-                <button type="submit" class="btn btn-default">Enviar</button>
-            </form>
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
 </nav>

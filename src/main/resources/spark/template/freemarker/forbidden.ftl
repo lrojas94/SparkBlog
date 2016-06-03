@@ -7,7 +7,7 @@
         </div>
         <div class="col-xs-12">
             <div class="alert alert-danger">
-                <b>Razon: </b> ${message!"No proporcionada..."}
+                <b>Razon: </b> ${forbidden_message!"No proporcionada..."}
             </div>
         </div>
     </div>

@@ -10,6 +10,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "users")
 public class User {
     @DatabaseField(generatedId = true)
+    @Expose
     private int id;
     @DatabaseField(columnName = "username", canBeNull = false)
     @Expose

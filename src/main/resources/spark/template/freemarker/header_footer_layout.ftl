@@ -16,6 +16,8 @@
     <#else>
         <div id="login_status" class="col-xs-2">
             <a href="/user/${user.getId()}">Saludos ${user.getName()} <i class="fa fa-user"></i></a>
+            |
+             <a href="/logout">Logout</a>
         </div>
     </#if>
         <div class="jumbotron" id="header">

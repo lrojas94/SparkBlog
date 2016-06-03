@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.support.ConnectionSource;
 import com.sun.org.apache.xpath.internal.operations.Number;
 import com.sun.xml.internal.bind.v2.model.core.ID;
@@ -30,9 +31,10 @@ public class Main {
     public final static String MODEL_PARAM = "model";
     public static final String BASE_LAYOUT = "header_footer_layout.ftl";
 
-    public static void redirectWrongAddress(Response response){
-        response.cookie("message_type","danger");
-        response.cookie("message","La direccion a la que intento acceder es incorrecta.");
+    public static void redirectWrongAddress(Request request,Response response){
+        request.session(true).attribute("message_type","danger");
+        request.session(true).attribute("message","Direccion no encontrada.");
+
         response.redirect("/");
     }
 
@@ -48,6 +50,7 @@ public class Main {
         Preferences userPrefs = Preferences.userRoot();
 //        userPrefs.putBoolean("first_run", true);
         Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
+
         if (isFirstRun) {
             System.out.println("running for the first time");
             dbHandler.getConnection();
@@ -59,11 +62,29 @@ public class Main {
             userPrefs.putBoolean("first_run", false);
         }
 
+        get("/logout", (request, response) -> {
+            request.session(true).attribute("user",null);
+            request.session(true).attribute("logged_in",false);
+            response.redirect("/");
+            return "";
+        });
+
         before((request, response) -> {
             //Add base model to everything:
             Map<String,Object> attributes = new HashMap<String, Object>();
             attributes.put("logged_in",request.session(true).attribute("user") != null);
             attributes.put("user",request.session(true).attribute("user"));
+
+            if(request.session().attribute("message_type") != null){ //Redirect messages
+
+                attributes.put("message_type",request.session().attribute("message_type"));
+                attributes.put("message",request.session().attribute("message"));
+
+            }
+
+            request.session().attribute("message_type",null);
+            request.session().attribute("message",null);
+
             request.attribute(MODEL_PARAM,attributes);
         });
 
@@ -75,14 +96,6 @@ public class Main {
             attributes.put("template_name","./main/index.ftl");
             attributes.put("articles", articles);
 
-            if(request.cookie("message_type") != null){ //Redirect messages
-
-                attributes.put("message_type",request.cookie("message_type"));
-                attributes.put("message",request.cookie("message"));
-                response.removeCookie("message_type");
-                response.removeCookie("message");
-
-            }
 
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
         });
@@ -178,9 +191,10 @@ public class Main {
                 Article article = articleDao.queryForId(id);
 
                 if(article  == null){
-                    response.cookie("message_type","danger");
-                    response.cookie("message","Articulo no encontrado.");
+                    request.session(true).attribute("message_type","danger");
+                    request.session(true).attribute("message","Articulo no encontrado.");
                     response.redirect("/");
+                    return null;
                 }
 
                 attributes.put("article",article);
@@ -188,13 +202,13 @@ public class Main {
                 return renderer.render(new ModelAndView(attributes,BASE_LAYOUT));
             }catch (Exception e){
                 if(e instanceof NumberFormatException){
-                    redirectWrongAddress(response);
+                    redirectWrongAddress(request,response);
                 }
             }
             finally {
                 conn.close();
             }
-            return  null;
+            return  "";
         });
 
         before("/article/add",new AuthFilter(renderer, new HashSet<AuthRoles>() {{
@@ -211,7 +225,7 @@ public class Main {
             return renderer.render(articleAddEdit(request,response,null,false));
         });
 
-        before("/article/edit/:id",new ArticleAuthorFilter(renderer));
+        before("/article/edit/:id",new ArticleAuthorFilter(renderer,true));
 
         get("/article/edit/:id",(request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
@@ -223,8 +237,8 @@ public class Main {
                 Article article = articleDao.queryForId(id);
 
                 if(article == null){
-                    response.cookie("message_type","danger");
-                    response.cookie("message","Articulo no encontrado.");
+                    request.session(true).attribute("message_type","danger");
+                    request.session(true).attribute("message","Articulo no encontrado.");
                     response.redirect("/");
                 }
 
@@ -237,12 +251,12 @@ public class Main {
             catch (Exception e){
                 if(e instanceof NumberFormatException){
                     //id is not a number...
-                    redirectWrongAddress(response);
+                    redirectWrongAddress(request,response);
                 }
             }finally {
                 conn.close();
             }
-            return null;
+            return "";
         });
 
         post("/article/edit/:id",(request, response) -> {
@@ -254,8 +268,8 @@ public class Main {
                 Article article = articleDao.queryForId(id);
 
                 if (article == null) {
-                    response.cookie("message_type", "danger");
-                    response.cookie("message", "Articulo no encontrado.");
+                    request.session(true).attribute("message_type", "danger");
+                    request.session(true).attribute("message", "Articulo no encontrado.");
                     response.redirect("/");
                 }
 
@@ -264,6 +278,29 @@ public class Main {
             }
             catch (Exception e){
                 System.out.println(e.getMessage());
+            }
+
+            return null;
+        });
+
+        before("/article/delete/:id",new ArticleAuthorFilter(renderer,true));
+
+        get("/article/delete/:id",(request, response) -> {
+           int id = Integer.parseInt(request.params("id"));
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
+            //Delete by id:
+            if(articleDao.deleteById(id) == 1){
+                //Article deleted:
+                request.session(true).attribute("message_type","success");
+                request.session(true).attribute("message","Articulo borrado correctamente");
+                System.out.println(request.headers("Referer"));
+                response.redirect(request.headers("Referer"));
+            }
+            else{
+                request.session(true).attribute("message_type","danger");
+                request.session(true).attribute("message","Error borrando Articulo");
+                response.redirect("/");
             }
 
             return null;
@@ -293,8 +330,8 @@ public class Main {
                     request.session(true).attribute("user",user);
                 }
                 else {
-                    response.cookie("message_type","danger");
-                    response.cookie("message","Usuario No Encontrado");
+                    request.session(true).attribute("message_type","danger");
+                    request.session(true).attribute("message","Usuario No Encontrado");
                 }
             }
             catch (Exception e){
@@ -336,6 +373,31 @@ public class Main {
             attributes.put("template_name","./users/show.ftl");
 
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
+        });
+
+        before("/user/delete/*", new AuthFilter(renderer,new HashSet<AuthRoles>(){{
+            add(AuthRoles.ADMIN);
+        }}));
+
+        get("/user/delete/:id",(request, response) -> {
+            int id = Integer.parseInt(request.params("id"));
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<User,Integer> userDao = dbHandler.getUserDao();
+
+            if(userDao.deleteById(id) == 1){
+                request.session(true).attribute("message_type","success");
+                request.session(true).attribute("message","Borrado exitoso");
+                response.redirect("/admin");
+            }
+            else{
+
+                request.session(true).attribute("message_type","info");
+                request.session(true).attribute("message","Borrado no exitoso");
+                response.redirect("/admin");
+            }
+
+            return "";
+
         });
         // -------------------------------- FINISH USER CRUD -------------------------------------------------------------- //
         // -------------------------------- COMMENTS CRUD ---------------------------------------------------
@@ -431,6 +493,56 @@ public class Main {
             attributes.put("template_name", "./tags/show.ftl");
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
         });
+
+        before("/admin",new AuthFilter(renderer,new HashSet<AuthRoles>(){{
+            add(AuthRoles.ADMIN);
+        }}));
+
+        get("/admin",(request, response) -> {
+            Map<String,Object> attributes = request.attribute(MODEL_PARAM);
+            ConnectionSource conn = dbHandler.getConnection();
+            Dao<User,Integer> userDao = dbHandler.getUserDao();
+
+            attributes.put("template_name","./admin/show.ftl");
+
+            List<User> users = userDao.queryForAll();
+            attributes.put("users",users);
+
+            return renderer.render(new ModelAndView(attributes,Main.BASE_LAYOUT));
+        });
+
+        post("/admin",(request, response) -> {
+            int id = Integer.parseInt(request.queryParams("userId"));
+
+            try{
+                ConnectionSource conn = dbHandler.getConnection();
+                Dao<User,Integer> userDao = dbHandler.getUserDao();
+                User user = userDao.queryForId(id);
+                String admin = request.queryParams("admin");
+                String autor = request.queryParams("author");
+                user.setAdministrator(admin != null && admin.equals("on"));
+                user.setAuthor(autor != null && autor.equals("on"));
+                if(userDao.update(user) == 1){
+                    request.session(true).attribute("message_type","success");
+                    request.session(true).attribute("message","Actualizacion completada");
+                    response.redirect("/admin");
+                }
+                else{
+
+                    request.session(true).attribute("message_type","info");
+                    request.session(true).attribute("message","No se realizo la actualizacion");
+                    response.redirect("/admin");
+                }
+
+                conn.close();
+            }catch (Exception e){
+                System.out.println(e.getCause());
+            }
+
+
+            return "";
+
+        });
     }
 
     private static ModelAndView articleAddEdit(Request request, Response response,Article article, boolean is_edit){
@@ -455,7 +567,8 @@ public class Main {
         Dao<ArticleTag, Integer> articleTagDao = dbHandler.getArticleTagDao();
         try {
             List<Article> sameArticles = articleDao.queryForEq("title", articleTitle);
-            if (sameArticles.size() != 0) {
+            if ((!is_edit && sameArticles.size() != 0 ) ||
+                    (sameArticles.size() != 0 && is_edit && article.getTitle() != null && sameArticles.get(0).getId() != article.getId())) {
                 // The article already exists
                 errors.add("Lo sentimos, pero este artículo ya existe.");
             }
@@ -472,6 +585,10 @@ public class Main {
                 Date publishedDate = new Date();
                 if(!is_edit){
                     article = new Article(articleTitle, articleBody, publishedDate, user);
+                }
+                else{
+                    article.setTitle(articleTitle);
+                    article.setBody(articleBody);
                 }
 
                 if (is_edit ? articleDao.update(article) >= 0 : articleDao.create(article) == 1) {
@@ -506,8 +623,14 @@ public class Main {
                                 articleTagDao.delete(articleTag);
                         }
                     }
+                    request.session(true).attribute("message_type","success");
 
-                    response.redirect("/");
+                    if(is_edit)
+                        request.session(true).attribute("message","Articulo editado satisfactoriamente");
+                    else
+                        request.session(true).attribute("message","Articulo agregado satisfactoriamente");
+
+                    response.redirect("/article/view/" + article.getId());
                 } else {
                     errors.add("ERROR EN BASE DE DATOS");
                     attributes.put("errors", errors);

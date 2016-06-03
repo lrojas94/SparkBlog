@@ -11,8 +11,17 @@ var Helpers = function(){
             last:     'Ultimo'
         },
         info : "Mostrando del _START_ al _END_ de un total de _TOTAL_ Entradas",
-        lengthMenu : "Mostrar _MENU_ Entradas"
+        lengthMenu : "Mostrar _MENU_ Entradas",
+        emptyTable: "No hay datos a mostrar.",
+        infoEmpty: ""
     };
+
+    $('.submit-form').click(function (e) {
+        e.preventDefault();
+        var form = $(this).closest('form');
+        console.log(form);
+        form.submit();
+    });
 
     var FormDataToJson = function(form){
         var formData = $(form).serializeArray();
@@ -41,6 +50,15 @@ var Users = function(){ //<-- this is basically a namespace.
         lengthMenu : [5,10,25,50],
         pageLength : 5,
     });
+
+    // $('#admin-user-table').dataTable({
+    //     fixedHeader : {
+    //         header: true
+    //     },
+    //     language : HelpersNamespace.DTLanguage,
+    //     lengthMenu : [5,10,25,50],
+    //     pageLength : 5,
+    // });
 
     return {}; //<-- returns an object with all public functions contained in users.
 };
@@ -76,11 +94,22 @@ var Comments = function(){
                     //Adding it was successful
                     //Add to DT:
                     var Comment = data.returnObject;
-                    console.log(Comment)
-                    var comment = '<a href="/user/'+Comment.author.id+'"><h4>'
-                        +Comment.author.username+'</h4></a>'+
-                        '<p>'+Comment.description+'</p>';
-                    $('#article-comment-table').DataTable().row.add([comment,Comment.id]).sort().draw();
+                    var commentTemplate = $('#comment-template').clone().attr("id","");
+                    var commentAuthor = $(commentTemplate).find(".comment-author");
+                    commentAuthor.attr("href",commentAuthor.attr("href") + Comment.author.id);
+                    commentAuthor.find("h4").text(Comment.author.username);
+                    var commentSpace = $(commentTemplate).find('.comment-comment');
+                    commentSpace.append(Comment.description);
+                    var commentDelete = $(commentSpace).find(".comment-delete-link");
+                    if($('#article-comment-table').data('user-admin')){
+                        var link = commentDelete.find('a');
+                        link.attr("href",link.attr("href")+Comment.id);
+                    }
+                    else{
+                        commentDelete.remove();
+                    }
+
+                    $('#article-comment-table').DataTable().row.add([commentTemplate.html(),Comment.id]).sort().draw();
                     $('#add-comment-errors').html("");
                     $('#comment-input').val("");
                 }
@@ -117,7 +146,20 @@ var Comments = function(){
     });
 };
 
+var Articles = function(){
+    var HelpersNamespace = Helpers();
+    $('#article-table').dataTable({
+        language: HelpersNamespace.DTLanguage,
+        pageLength: 10,
+        lengthMenu: [10,25,50],
+        ordering: false
+
+    })
+};
+
 $(function(){
     var UserNamespace = Users();
     var CommentNamespace = Comments();
+    var ArticleNamespace = Articles();
+    var HelpersNamespace = Helpers();
 });
