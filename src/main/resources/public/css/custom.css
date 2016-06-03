@@ -87,6 +87,15 @@ html,body{
     text-align: justify;
 }
 
+.article-view-header{
+    background: #2c3e50;
+    color:white;
+}
+
+.article-view-body{
+    padding: 10px 0;
+    text-align: justify;
+}
 /* BOOTSTRAP MODS */
 .container-fluid{
     margin-left: 0px;

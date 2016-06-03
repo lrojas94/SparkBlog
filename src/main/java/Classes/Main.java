@@ -2,15 +2,17 @@ package Classes;
 
 import static spark.Spark.*;
 
-import Classes.HelperClasses.ArticleAuthorFilter;
-import Classes.HelperClasses.AuthFilter;
-import Classes.HelperClasses.AuthRoles;
-import Classes.HelperClasses.DatabaseHandler;
+import Classes.HelperClasses.*;
+import Classes.JsonClasses.*;
+import Classes.JsonClasses.Comment;
 import Classes.data.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
+import com.sun.org.apache.xpath.internal.operations.Number;
 import com.sun.xml.internal.bind.v2.model.core.ID;
 import spark.ModelAndView;
 import spark.Request;
@@ -39,8 +41,9 @@ public class Main {
         staticFiles.location("/public");
 
         DatabaseHandler dbHandler = DatabaseHandler.getInstance();
-
         TemplateEngine renderer = new FreeMarkerEngine();
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
 
         Preferences userPrefs = Preferences.userRoot();
         Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
@@ -162,6 +165,36 @@ public class Main {
         });
 
         //--------------------------- ARTICLE CRUD START ----------------------------------------//
+
+        get("/article/view/:id",(request, response) -> {
+            Map<String, Object> attributes = request.attribute(MODEL_PARAM);
+            attributes.put("template_name","./articles/view.ftl");
+            ConnectionSource conn = null;
+            try{
+                int id = Integer.parseInt(request.params("id"));
+                conn = dbHandler.getConnection();
+                Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
+                Article article = articleDao.queryForId(id);
+
+                if(article  == null){
+                    response.cookie("message_type","danger");
+                    response.cookie("message","Articulo no encontrado.");
+                    response.redirect("/");
+                }
+
+                attributes.put("article",article);
+
+                return renderer.render(new ModelAndView(attributes,BASE_LAYOUT));
+            }catch (Exception e){
+                if(e instanceof NumberFormatException){
+                    redirectWrongAddress(response);
+                }
+            }
+            finally {
+                conn.close();
+            }
+            return  null;
+        });
 
         before("/article/add",new AuthFilter(renderer, new HashSet<AuthRoles>() {{
             add(AuthRoles.AUTHOR);
@@ -304,6 +337,48 @@ public class Main {
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
         });
         // -------------------------------- FINISH USER CRUD -------------------------------------------------------------- //
+        // -------------------------------- COMMENTS CRUD ---------------------------------------------------
+        post("/comment/add","application/json",(request, response) -> {
+            Map<String,Object> attributes = request.attribute(MODEL_PARAM);
+            ConnectionSource conn = null;
+            Classes.JsonClasses.Comment jsonComment = gson.fromJson(request.body(), Comment.class);
+            Dao<Article,Integer> articlesDao = dbHandler.getArticleDao();
+            Dao<Classes.data.Comment,Integer> commentDao = dbHandler.getCommentDao();
+            //Add comment now:
+            Article article = articlesDao.queryForId(jsonComment.getArticleId());
+            User user = request.session().attribute("user");
+            ActionStatus status = new ActionStatus();
+
+            //Set respose headers:
+
+            if(user == null){
+                status.setStatus("error");
+                status.getErrors().add("Usted no ha inciado sesion.");
+                return status;
+
+            }
+
+            if(article == null){
+                status.setStatus("error");
+                status.getErrors().add("Articulo no encontrado");
+
+                return status;
+            }
+
+            Classes.data.Comment comment = new Classes.data.Comment(jsonComment.getComment(),user,article);
+
+            if(commentDao.create(comment) == 1){
+                //Status ok:
+                status.setStatus("success");
+                status.setReturnObject(comment);
+                return status;
+            }
+            else{
+                status.setStatus("error");
+                status.getErrors().add("Error insertando en la base de datos.");
+                return status;
+            }
+        },gson::toJson);
     }
 
     private static ModelAndView articleAddEdit(Request request, Response response,Article article, boolean is_edit){

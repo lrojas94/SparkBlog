@@ -1,5 +1,6 @@
 package Classes.data;
 
+import com.google.gson.annotations.Expose;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 /**
@@ -11,8 +12,10 @@ public class User {
     @DatabaseField(generatedId = true)
     private int id;
     @DatabaseField(columnName = "username", canBeNull = false)
+    @Expose
     private String username;
     @DatabaseField(columnName = "name", canBeNull = false)
+    @Expose
     private String name;
     @DatabaseField(columnName = "password", canBeNull = false)
     private String password;

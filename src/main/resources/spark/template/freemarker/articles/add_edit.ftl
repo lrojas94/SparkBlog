@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="row">
-                    <div class="form-group col-xs-12 col-md-6">
+                    <div class="form-group col-xs-12">
                         <label for="article_tags"><i class="fa fa-tags"></i> Tags</label>
                         <input type="text" class="form-control"
                                name="article_tags" id="tags"

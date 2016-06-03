@@ -3,6 +3,7 @@ package Classes.data;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import com.google.gson.annotations.Expose;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -17,8 +18,10 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Article {
 
     @DatabaseField(generatedId = true)
+    @Expose
     private int id;
     @DatabaseField(columnName = "title", canBeNull = false)
+    @Expose
     private String title;
     @DatabaseField(columnName = "body", canBeNull = false,dataType = DataType.LONG_STRING)
     private String body;
@@ -83,6 +86,7 @@ public class Article {
     public ForeignCollection<Comment> getComments() { return comments; }
 
     public String getFormattedTags(){
+
         if(getArticleTags() == null){
             return  "";
         }

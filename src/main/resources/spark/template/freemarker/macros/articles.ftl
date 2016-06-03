@@ -15,7 +15,7 @@
             <p><b>Escrito por</b>: <a href="/user/${article.getAuthor().getId()}">${article.getAuthor()} <i class="fa fa-user"></i></a></p>
         </div>
         <div class="col-xs-4 text-right">
-            <a href="/articles/show/${article.getId()}" >Leer mas</a>
+            <a href="/article/view/${article.getId()}" >Leer mas</a>
         </div>
         <#assign ArticleTags = article.getArticleTags()>
         <#if ArticleTags?size != 0>
@@ -46,7 +46,7 @@
             <tbody>
                 <#list articles as article>
                 <tr>
-                    <td><a href="/article/${article.getId()}">${article.getTitle()}</a></td>
+                    <td><a href="/article/view/${article.getId()}">${article.getTitle()}</a></td>
                     <td>${article.getDatePublished()?date}</td>
                     <#if user?? && User.getId() = user.getId()>
                         <td>
