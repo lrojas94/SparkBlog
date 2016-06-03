@@ -169,7 +169,7 @@ public class Main {
 
         get("/article/add", (request, response) -> {
             Map<String, Object> attributes = request.attribute(MODEL_PARAM);
-            attributes.put("template_name","./articles/add_edit_article.ftl");
+            attributes.put("template_name","./articles/add_edit.ftl");
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
         });
 
@@ -196,7 +196,7 @@ public class Main {
 
                 attributes.put("article",article);
                 attributes.put("is_edit",true);
-                attributes.put("template_name","./articles/add_edit_article.ftl");
+                attributes.put("template_name","./articles/add_edit.ftl");
 
                 return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
             }
@@ -380,7 +380,7 @@ public class Main {
                     errors.add("ERROR EN BASE DE DATOS");
                     attributes.put("errors", errors);
                     attributes.put("article",article);
-                    attributes.put("template_name","./articles/add_edit_article.ftl");
+                    attributes.put("template_name","./articles/add_edit.ftl");
                     return new ModelAndView(attributes, BASE_LAYOUT);
                 }
             } else {
@@ -391,7 +391,7 @@ public class Main {
                 attributes.put("article",article);
                 attributes.put("tags",request.queryParams("article_tags"));
                 attributes.put("errors", errors);
-                attributes.put("template_name","./articles/add_edit_article.ftl");
+                attributes.put("template_name","./articles/add_edit.ftl");
                 if(is_edit) {
                     attributes.put("is_edit",true);
                 }
