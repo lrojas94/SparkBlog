@@ -14,13 +14,22 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.List;
+
 import static Classes.data.Constants.*;
 
 /**
  * Created by MEUrena on 5/30/16.
  * All rights reserved.
  */
-public class DatabaseHandler {
+public class DatabaseHandler<T> {
+
+    private static EntityManagerFactory emf = null;
+    private Class<T> entityClass = null;
 
     private static ConnectionSource cs = null;
     private static Dao<User, Integer> userDao = null;
@@ -31,6 +40,83 @@ public class DatabaseHandler {
 
     private static DatabaseHandler instance = null;
     protected DatabaseHandler() {}
+
+    public DatabaseHandler(Class<T> entityClass) {
+        if (emf == null) {
+            emf = Persistence.createEntityManagerFactory("org.hibernate.sparkblog.jpa");
+        }
+        this.entityClass = entityClass;
+    }
+
+    public EntityManager getEntityManager() { return emf.createEntityManager(); }
+
+
+    public void insertIntoDatabase(T entity) throws Exception {
+        EntityManager em = getEntityManager();
+        em.getTransaction().begin();
+        try {
+            em.persist(entity);
+            em.getTransaction().commit();
+        }catch (Exception ex){
+            em.getTransaction().rollback();
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public T findObjectWithId(Object id) throws Exception {
+        EntityManager em = getEntityManager();
+        try {
+            return em.find(entityClass, id);
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<T> getAllObjects() throws Exception {
+        EntityManager em = getEntityManager();
+        try{
+            CriteriaQuery<T> criteriaQuery = em.getCriteriaBuilder().createQuery(entityClass);
+            criteriaQuery.select(criteriaQuery.from(entityClass));
+            return em.createQuery(criteriaQuery).getResultList();
+        } catch (Exception ex){
+            throw ex;
+        }finally {
+            em.close();
+        }
+    }
+
+    public void updateObject(T entity) throws Exception {
+        EntityManager em = getEntityManager();
+        em.getTransaction().begin();
+        try {
+            em.merge(entity);
+            em.getTransaction().commit();
+        }catch (Exception ex){
+            em.getTransaction().rollback();
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void deleteObject(T entity) throws Exception {
+        EntityManager em = getEntityManager();
+        em.getTransaction().begin();
+        try {
+            em.remove(entity);
+            em.getTransaction().commit();
+        }catch (Exception ex){
+            em.getTransaction().rollback();
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
 
     public static DatabaseHandler getInstance() {
         if (instance == null) {
