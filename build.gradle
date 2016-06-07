@@ -12,12 +12,15 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile "com.sparkjava:spark-core:2.5" //add to build.gradle
+    compile "com.sparkjava:spark-debug-tools:0.5"
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
     compile group: 'org.freemarker', name: 'freemarker', version: '2.3.14'
     compile group: 'com.sparkjava', name: 'spark-template-freemarker', version: '2.3'
     compile group: 'com.h2database', name: 'h2', version: '1.4.192'
     compile group: 'com.j256.ormlite', name: 'ormlite-core', version: '4.48'
     compile group: 'com.j256.ormlite', name: 'ormlite-jdbc', version: '4.48'
+    compile "org.hibernate:hibernate-core:5.2.0.Final"
+    compile "org.hibernate:hibernate-entitymanager:5.1.0.Final"
     compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
 }
 

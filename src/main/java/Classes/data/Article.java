@@ -34,6 +34,9 @@ public class Article {
     @ForeignCollectionField
     private ForeignCollection<Comment> comments;
 
+    private Integer likes;
+    private Integer dislikes;
+
     public Article() {}
 
     public Article(String title, String body, Date datePublished, User author) {
@@ -84,6 +87,14 @@ public class Article {
     }
 
     public ForeignCollection<Comment> getComments() { return comments; }
+
+    public Integer getLikes() { return likes; }
+
+    public void setLikes(Integer likes) { this.likes = likes; }
+
+    public Integer getDislikes() { return dislikes; }
+
+    public void setDislikes(Integer dislikes) { this.dislikes = dislikes; }
 
     public String getFormattedTags(){
 

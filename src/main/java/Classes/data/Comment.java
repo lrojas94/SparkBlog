@@ -23,6 +23,9 @@ public class Comment {
     @Expose
     private Article article;
 
+    private Integer likes;
+    private Integer dislikes;
+
     public Comment() {}
 
     public Comment(String description, User author, Article article) {
@@ -58,4 +61,13 @@ public class Comment {
     public void setArticle(Article article) {
         this.article = article;
     }
+
+    public Integer getLikes() { return likes; }
+
+    public void setLikes(Integer likes) { this.likes = likes; }
+
+    public Integer getDislikes() { return dislikes; }
+
+    public void setDislikes(Integer dislikes) { this.dislikes = dislikes; }
+
 }

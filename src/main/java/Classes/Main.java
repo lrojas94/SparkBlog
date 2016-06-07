@@ -1,6 +1,7 @@
 package Classes;
 
 import static spark.Spark.*;
+import static spark.debug.DebugScreen.enableDebugScreen;
 
 import Classes.HelperClasses.*;
 import Classes.JsonClasses.*;
@@ -13,7 +14,6 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.support.ConnectionSource;
-import com.sun.org.apache.xpath.internal.operations.Number;
 import com.sun.xml.internal.bind.v2.model.core.ID;
 import spark.ModelAndView;
 import spark.Request;
@@ -41,6 +41,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         staticFiles.location("/public");
+        // Remove on production
+        enableDebugScreen();
 
         DatabaseHandler dbHandler = DatabaseHandler.getInstance();
         TemplateEngine renderer = new FreeMarkerEngine();
