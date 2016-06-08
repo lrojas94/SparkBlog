@@ -7,6 +7,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
+import org.eclipse.jetty.util.annotation.Name;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,13 +21,21 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "articles")
+@NamedQueries({
+        @NamedQuery(
+                name = "findArticlesByTitle",
+                query = "Select a FROM Article a WHERE a.title = :title"
+        )
+})
 public class Article {
+
+    public static String QUERY_NAME_FIND_ARTICLES_BY_TITLE = "findArticlesByTitle";
 
     @Id
     @GeneratedValue
     @Expose
     private int id;
-    @Column(name = "title")
+    @Column(name = "title",unique = true)
     @Expose
     private String title;
     @Column(name = "body")

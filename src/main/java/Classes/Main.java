@@ -178,9 +178,8 @@ public class Main {
             ConnectionSource conn = null;
             try{
                 int id = Integer.parseInt(request.params("id"));
-                conn = dbHandler.getConnection();
-                Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
-                Article article = articleDao.queryForId(id);
+                ArticleHandler articleHandler = ArticleHandler.getInstance();
+                Classes.jpaIntegration.Article article = articleHandler.findObjectWithId(id);
 
                 if(article  == null){
                     request.session(true).attribute("message_type","danger");
@@ -225,8 +224,8 @@ public class Main {
             try{
 
                 int id = Integer.parseInt(request.params("id"));
-                Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
-                Article article = articleDao.queryForId(id);
+                ArticleHandler articleHandler = ArticleHandler.getInstance();
+                Classes.jpaIntegration.Article article = articleHandler.findObjectWithId(id);
 
                 if(article == null){
                     request.session(true).attribute("message_type","danger");
@@ -515,13 +514,14 @@ public class Main {
         });
     }
 
-    private static ModelAndView articleAddEdit(Request request, Response response,Article article, boolean is_edit){
+    private static ModelAndView articleAddEdit(Request request, Response response, Classes.jpaIntegration.Article article, boolean is_edit){
         if(article == null){
-            article = new Article();
+            article = new Classes.jpaIntegration.Article();
         }
+        ArticleHandler articleHandler = ArticleHandler.getInstance();
+        TagHandler tagHandler = TagHandler.getInstance();
 
         DatabaseHandler dbHandler = DatabaseHandler.getInstance();
-
         Map<String,Object> attributes = request.attribute(MODEL_PARAM);
         //get fields:
         String articleTitle = request.queryParams("article_title");
@@ -531,14 +531,10 @@ public class Main {
         //Prepare errors:
         ArrayList<String> errors = new ArrayList<String>();
 
-        ConnectionSource conn = dbHandler.getConnection();
-        Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
-        Dao<Tag,Integer> tagDao = dbHandler.getTagDao();
-        Dao<ArticleTag, Integer> articleTagDao = dbHandler.getArticleTagDao();
         try {
-            List<Article> sameArticles = articleDao.queryForEq("title", articleTitle);
-            if ((!is_edit && sameArticles.size() != 0 ) ||
-                    (sameArticles.size() != 0 && is_edit && article.getTitle() != null && sameArticles.get(0).getId() != article.getId())) {
+            Classes.jpaIntegration.Article sameArticle = articleHandler.findArticleByTitle(articleTitle);
+            if ((!is_edit && sameArticle != null ) ||
+                    (sameArticle != null && is_edit && article.getTitle() != null && sameArticle.getId() != article.getId())) {
                 // The article already exists
                 errors.add("Lo sentimos, pero este artículo ya existe.");
             }
@@ -551,49 +547,56 @@ public class Main {
             }
 
             if (errors.size() == 0) {
-                User user = request.session().attribute("user");
+                Classes.jpaIntegration.User user = request.session().attribute("user");
                 Date publishedDate = new Date();
+
                 if(!is_edit){
-                    article = new Article(articleTitle, articleBody, publishedDate, user);
+                    article = new Classes.jpaIntegration.Article(articleTitle, articleBody, publishedDate, user);
                 }
                 else{
                     article.setTitle(articleTitle);
                     article.setBody(articleBody);
                 }
+                if(is_edit){
+                    articleHandler.updateObject(article)
+                }
+                else{
+                    articleHandler.insertIntoDatabase(article)
+                }
 
-                if (is_edit ? articleDao.update(article) >= 0 : articleDao.create(article) == 1) {
-                    for (String tagTitle : articleTags) {
-                        //First, check if tag exist:
-                        List<Tag> tags = tagDao.queryForEq("description",tagTitle);
-                        Tag tag = null;
-                        if(tags.size() != 0) {
-                            //The tag exists
-                            tag = tags.get(0);
-                        }
-                        else{
-                            tag = new Tag(tagTitle, article);
-                            tagDao.create(tag);
-                        }
-
-                        Map<String,Object> fieldValues = new HashMap<>();
-                        fieldValues.put("article_id",article);
-                        fieldValues.put("tag_id",tag);
-
-                        if(is_edit && articleTagDao.queryForFieldValues(fieldValues).size() != 0)
-                            continue;
-
-                        ArticleTag articleTag = new ArticleTag(article,tag);
-                        articleTagDao.create(articleTag);
+                for (String tagTitle : articleTags) {
+                    //First, check if tag exist:
+                    Classes.jpaIntegration.Tag existingTag = tagHandler.findByDescription(tagTitle);
+                    Classes.jpaIntegration.Tag tag = null;
+                    if(existingTag != null) {
+                        //The tag exists
+                        tag = existingTag;
+                    }
+                    else{
+                        tag = new Classes.jpaIntegration.Tag(tagTitle, article);
+                        tagHandler.insertIntoDatabase(tag);
                     }
 
-                    if(is_edit && article.getArticleTags() != null){
+                    Map<String,Object> fieldValues = new HashMap<>();
+                    fieldValues.put("article_id",article);
+                    fieldValues.put("tag_id",tag);
+
+                    if(is_edit && article.getTags().contains(tag))
+                        continue;
+                    article.getTags().add(tag);
+
+
+                    if(is_edit && article.getTags() != null){
                         //Delete removed tags:
-                        for(ArticleTag articleTag : article.getArticleTags()){
-                            if(!articleTags.contains(articleTag.getTag().getDescription()))
-                                articleTagDao.delete(articleTag);
+                        for(Classes.jpaIntegration.Tag aTag: article.getTags()){
+                            if(!articleTags.contains(aTag.getDescription())
+                                article.getTags().remove(aTag);
                         }
                     }
+
                     request.session(true).attribute("message_type","success");
+
+                    articleHandler.updateObject(article);
 
                     if(is_edit)
                         request.session(true).attribute("message","Articulo editado satisfactoriamente");
@@ -609,8 +612,6 @@ public class Main {
                     return new ModelAndView(attributes, BASE_LAYOUT);
                 }
             } else {
-
-                conn.close();
                 article.setTitle(articleTitle);
                 article.setBody(articleBody);
                 attributes.put("article",article);

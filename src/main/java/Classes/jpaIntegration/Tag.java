@@ -14,7 +14,15 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "tags")
+@NamedQueries({
+        @NamedQuery(
+                name = "getTagByDescription",
+                query = "SELECT t FROM Tag t WHERE t.description = :description"
+        )
+})
 public class Tag {
+
+    public static String QUERY_NAME_TAG_BY_DESC = "getTagByDescription";
 
     @Id
     @GeneratedValue
