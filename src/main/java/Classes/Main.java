@@ -7,6 +7,10 @@ import Classes.HelperClasses.*;
 import Classes.JsonClasses.*;
 import Classes.JsonClasses.Comment;
 import Classes.data.*;
+import Classes.data.Article;
+import Classes.data.Tag;
+import Classes.data.User;
+import Classes.jpaIntegration.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.j256.ormlite.dao.Dao;
@@ -56,11 +60,10 @@ public class Main {
         if (isFirstRun) {
             System.out.println("running for the first time");
             dbHandler.getConnection();
-            dbHandler.createAllTables();
-            User firstUser = new User("admin", "Administrator", "admin", true, true);
-            Dao<User, Integer> userDao = dbHandler.getUserDao();
-            userDao.create(firstUser);
-            dbHandler.closeConnection();
+//            dbHandler.createAllTables();
+            Classes.jpaIntegration.User firstUser = new Classes.jpaIntegration.User("admin", "Administrator", "admin", true, true);
+            UserHandler userHandler = UserHandler.getInstance();
+            userHandler.insertIntoDatabase(firstUser);
             userPrefs.putBoolean("first_run", false);
         }
 
@@ -112,7 +115,7 @@ public class Main {
         post("/signup",(request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
             //get fields:
-            String username = request.queryParams("username"),
+            String  username = request.queryParams("username"),
                     fullname = request.queryParams("fullname"),
                     password = request.queryParams("password"),
                     password2 = request.queryParams("password2");
@@ -120,13 +123,12 @@ public class Main {
             ArrayList<String> errors = new ArrayList<String>();
 
             //Check if username exists:
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<User,Integer> userDao = dbHandler.getUserDao();
+            UserHandler userHandler = UserHandler.getInstance();
+
             try {
                 attributes.put("username",username);
                 attributes.put("fullname",fullname);
-
-                if(userDao.queryForEq("username",username).size() != 0){
+                if(userHandler.findUserByUsername(username) != null){
                     //cant use that.
                     errors.add("El nombre de usuario ya existe. Intente con algun otro.");
                 }
@@ -145,25 +147,16 @@ public class Main {
                 
                 if(errors.size() == 0){
 
-                    User user = new User();
+                    Classes.jpaIntegration.User user = new Classes.jpaIntegration.User();
                     user.setUsername(username);
                     user.setName(fullname);
                     user.setPassword(password);
                     user.setAdministrator(false);
                     user.setAuthor(false);
 
-                    if(userDao.create(user) == 1){
-                        //Set as login:
-                        request.session(true).attribute("user",user);
-                        response.redirect("/");
-
-                    }
-                    else{
-                        errors.add("ERROR EN BASE DE DATOS");
-                        attributes.put("errors",errors);
-                        attributes.put("template_name","./users/add.ftl");
-                        return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
-                    }
+                    userHandler.insertIntoDatabase(user);
+                    request.session(true).attribute("user",user);
+                    response.redirect("/");
                 }
                 else{
                     attributes.put("errors",errors);
@@ -171,10 +164,8 @@ public class Main {
                     return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
                 }
 
-            }catch (Exception e){
+            }catch (Exception e) {
                 System.out.println(e.getMessage());
-            }finally {
-                conn.close();
             }
 
             return null;
@@ -322,11 +313,8 @@ public class Main {
             //In the meantime:
             ConnectionSource conn = dbHandler.getConnection();
             try{
-                Dao<User,ID> userDao = DaoManager.createDao(conn,User.class);
-                QueryBuilder<User,ID> query = userDao.queryBuilder();
-                query.where().eq("username",username)
-                        .and().eq("password",password);
-                User user = userDao.queryForFirst(query.prepare());
+                UserHandler userHandler = UserHandler.getInstance();
+                Classes.jpaIntegration.User user = userHandler.loginUser(username,password);
                 if(user!= null){
                     //Create session:
                     request.session(true).attribute("user",user);
@@ -354,22 +342,15 @@ public class Main {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
             //Get the user:
             int userId = Integer.parseInt(request.params("id"));
-            ConnectionSource con = dbHandler.getConnection();
-            Dao<User,Integer> userDao = dbHandler.getUserDao();
-            Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
+            UserHandler userHandler = UserHandler.getInstance();
+            Classes.jpaIntegration.User user = userHandler.findObjectWithId(userId);
             try{
-                User user = userDao.queryForId(userId);
-                List<Article> articles = new ArrayList<Article>();
-                articles = articleDao.queryForEq("author_id",user.getId());
                 attributes.put("User",user);
-                attributes.put("articles",articles);
+                attributes.put("articles",user.getArticles());
 
             }
             catch (Exception e){
                 System.out.println(e.getMessage());
-            }
-            finally{
-                con.close();
             }
 
             attributes.put("template_name","./users/show.ftl");
@@ -383,16 +364,16 @@ public class Main {
 
         get("/user/delete/:id",(request, response) -> {
             int id = Integer.parseInt(request.params("id"));
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<User,Integer> userDao = dbHandler.getUserDao();
+            UserHandler userHandler = UserHandler.getInstance();
+            Classes.jpaIntegration.User toDelete = userHandler.findObjectWithId(id);
 
-            if(userDao.deleteById(id) == 1){
+            if(toDelete != null){
+                userHandler.deleteObject(toDelete);
                 request.session(true).attribute("message_type","success");
                 request.session(true).attribute("message","Borrado exitoso");
                 response.redirect("/admin");
             }
             else{
-
                 request.session(true).attribute("message_type","info");
                 request.session(true).attribute("message","Borrado no exitoso");
                 response.redirect("/admin");
@@ -502,12 +483,9 @@ public class Main {
 
         get("/admin",(request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<User,Integer> userDao = dbHandler.getUserDao();
-
             attributes.put("template_name","./admin/show.ftl");
-
-            List<User> users = userDao.queryForAll();
+            UserHandler userHandler = UserHandler.getInstance();
+            List<Classes.jpaIntegration.User> users = userHandler.getAllObjects();
             attributes.put("users",users);
 
             return renderer.render(new ModelAndView(attributes,Main.BASE_LAYOUT));
@@ -517,28 +495,19 @@ public class Main {
             int id = Integer.parseInt(request.queryParams("userId"));
 
             try{
-                ConnectionSource conn = dbHandler.getConnection();
-                Dao<User,Integer> userDao = dbHandler.getUserDao();
-                User user = userDao.queryForId(id);
+                UserHandler userHandler = UserHandler.getInstance();
+                Classes.jpaIntegration.User user = userHandler.findObjectWithId(id);
                 String admin = request.queryParams("admin");
                 String autor = request.queryParams("author");
                 user.setAdministrator(admin != null && admin.equals("on"));
                 user.setAuthor(autor != null && autor.equals("on"));
-                if(userDao.update(user) == 1){
-                    request.session(true).attribute("message_type","success");
-                    request.session(true).attribute("message","Actualizacion completada");
-                    response.redirect("/admin");
-                }
-                else{
+                userHandler.updateObject(user);
+                request.session(true).attribute("message_type","success");
+                request.session(true).attribute("message","Actualizacion completada");
+                response.redirect("/admin");
 
-                    request.session(true).attribute("message_type","info");
-                    request.session(true).attribute("message","No se realizo la actualizacion");
-                    response.redirect("/admin");
-                }
-
-                conn.close();
             }catch (Exception e){
-                System.out.println(e.getCause());
+                System.out.println(e.getMessage());
             }
 
 

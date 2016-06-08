@@ -1,7 +1,7 @@
 package Classes.HelperClasses;
 
 import Classes.Main;
-import Classes.data.User;
+import Classes.jpaIntegration.User;
 import spark.*;
 
 import java.util.Map;

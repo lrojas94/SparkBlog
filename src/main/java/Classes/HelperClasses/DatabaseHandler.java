@@ -41,7 +41,7 @@ public class DatabaseHandler<T> {
     private static DatabaseHandler instance = null;
     protected DatabaseHandler() {}
 
-    public DatabaseHandler(Class<T> entityClass) {
+    protected DatabaseHandler(Class<T> entityClass) {
         if (emf == null) {
             emf = Persistence.createEntityManagerFactory("org.hibernate.sparkblog.jpa");
         }
@@ -49,6 +49,10 @@ public class DatabaseHandler<T> {
     }
 
     public EntityManager getEntityManager() { return emf.createEntityManager(); }
+
+    /*
+    New Handler Classes.
+     */
 
 
     public void insertIntoDatabase(T entity) throws Exception {

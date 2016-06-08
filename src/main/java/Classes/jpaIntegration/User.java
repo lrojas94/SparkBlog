@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -13,7 +14,21 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "users")
+@NamedQueries({
+    @NamedQuery(
+            name = "findUserByUsername",
+            query = "SELECT u FROM User u WHERE u.username = :username"
+    ),
+    @NamedQuery(
+            name = "findUserByUsernameAndPassword",
+            query = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password"
+    )
+})
 public class User {
+    public static String QUERY_NAME_FIND_BY_USERNAME = "findUserByUsername";
+    public static String QUERY_NAME_FIND_BY_USERNAME_AND_PASSWORD = "findUserByUsernameAndPassword";
+
+
     @Id
     @GeneratedValue
     @Expose
@@ -31,9 +46,9 @@ public class User {
     @Column(name = "isAuthor")
     private Boolean author;
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
-    private Set<Article> articles;
+    private Set<Article> articles = new HashSet<Article>();
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
-    private Set<Comment> comments;
+    private Set<Comment> comments = new HashSet<Comment>();
 
     public User() {}
 

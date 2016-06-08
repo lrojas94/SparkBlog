@@ -1,8 +1,8 @@
 package Classes.HelperClasses;
 
 import Classes.Main;
-import Classes.data.Article;
-import Classes.data.User;
+import Classes.jpaIntegration.Article;
+import Classes.jpaIntegration.User;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import spark.*;
