@@ -30,9 +30,9 @@ public class User {
     private Boolean administrator;
     @Column(name = "isAuthor")
     private Boolean author;
-    @OneToMany
+    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
     private Set<Article> articles;
-    @OneToMany
+    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
     private Set<Comment> comments;
 
     public User() {}
