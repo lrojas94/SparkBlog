@@ -94,9 +94,8 @@ public class Main {
         });
 
         get("/",(request,response) -> {
-            ConnectionSource conn = dbHandler.getConnection();
-            List<Article> articles = dbHandler.getArticlesWithLimit(0, 20);
-            conn.close();
+            ArticleHandler articleHandler = ArticleHandler.getInstance();
+            List<Classes.jpaIntegration.Article> articles = articleHandler.getAllObjects();
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
             attributes.put("template_name","./main/index.ftl");
             attributes.put("articles", articles);
