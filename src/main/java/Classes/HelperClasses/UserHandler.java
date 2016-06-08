@@ -1,6 +1,6 @@
 package Classes.HelperClasses;
 
-import Classes.data.User;
+import Classes.jpaIntegration.User;
 
 /**
  * Created by MEUrena on 6/7/16.

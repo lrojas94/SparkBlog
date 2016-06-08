@@ -1,6 +1,6 @@
 package Classes.HelperClasses;
 
-import Classes.data.Comment;
+import Classes.jpaIntegration.Comment;
 
 /**
  * Created by MEUrena on 6/7/16.

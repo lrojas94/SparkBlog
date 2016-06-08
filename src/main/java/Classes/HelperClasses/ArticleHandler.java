@@ -1,6 +1,6 @@
 package Classes.HelperClasses;
 
-import Classes.data.Article;
+import Classes.jpaIntegration.Article;
 
 /**
  * Created by MEUrena on 6/7/16.

@@ -4,10 +4,10 @@
              version="2.1">
     <persistence-unit name="org.hibernate.sparkblog.jpa" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>Classes.data.User</class>
-        <class>Classes.data.Article</class>
-        <class>Classes.data.Tag</class>
-        <class>Classes.data.Comment</class>
+        <class>Classes.jpaIntegration.User</class>
+        <class>Classes.jpaIntegration.Article</class>
+        <class>Classes.jpaIntegration.Tag</class>
+        <class>Classes.jpaIntegration.Comment</class>
         <properties>
             <!--<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test" />-->
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/blog" />

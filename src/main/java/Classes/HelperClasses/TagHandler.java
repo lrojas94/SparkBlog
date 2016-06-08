@@ -1,6 +1,6 @@
 package Classes.HelperClasses;
 
-import Classes.data.Tag;
+import Classes.jpaIntegration.Tag;
 
 /**
  * Created by MEUrena on 6/7/16.
