@@ -5,6 +5,8 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
+import java.io.Serializable;
+
 
 /**
  * Created by MEUrena on 5/31/16.
@@ -12,7 +14,16 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "comments")
-public class Comment {
+@NamedQueries({
+        @NamedQuery(
+                name = "deleteCommentById",
+                query = "DELETE FROM Comment c WHERE c.id = :id"
+        )
+})
+public class Comment implements Serializable {
+
+    public static String QUERY_NAME_DELETE_COMMENT_BY_ID = "deleteCommentById";
+
     @Id
     @GeneratedValue
     @Expose
@@ -20,11 +31,11 @@ public class Comment {
     @Column(name = "description",nullable = false)
     @Expose
     private String description;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "author",nullable = false)
     @Expose
     private User author;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "article",nullable = false)
     @Expose
     private Article article;

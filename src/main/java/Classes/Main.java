@@ -96,7 +96,7 @@ public class Main {
 
         get("/",(request,response) -> {
             ArticleHandler articleHandler = ArticleHandler.getInstance();
-            List<Classes.jpaIntegration.Article> articles = articleHandler.getAllObjects();
+            List<Classes.jpaIntegration.Article> articles = articleHandler.findArticlesInDescOrder();
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
             attributes.put("template_name","./main/index.ftl");
             attributes.put("articles", articles);
@@ -381,22 +381,23 @@ public class Main {
         // -------------------------------- COMMENTS CRUD ---------------------------------------------------
         post("/comment/add","application/json",(request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
-            ConnectionSource conn = null;
             Classes.JsonClasses.Comment jsonComment = gson.fromJson(request.body(), Comment.class);
-            Dao<Article,Integer> articlesDao = dbHandler.getArticleDao();
-            Dao<Classes.data.Comment,Integer> commentDao = dbHandler.getCommentDao();
+
+            ArticleHandler articleHandler = ArticleHandler.getInstance();
+            CommentHandler commentHandler = CommentHandler.getInstance();
+
             //Add comment now:
-            Article article = articlesDao.queryForId(jsonComment.getArticleId());
-            User user = request.session().attribute("user");
+            Classes.jpaIntegration.Article article = articleHandler.findObjectWithId(jsonComment.getArticleId());
+            Classes.jpaIntegration.User user = request.session().attribute("user");
             ActionStatus status = new ActionStatus();
 
-            //Set respose headers:
+            //Set response headers:
 
             if(user == null){
                 status.setStatus("error");
-                status.getErrors().add("Usted no ha inciado sesion.");
-                return status;
+                status.getErrors().add("Usted no ha iniciado sesion.");
 
+                return status;
             }
 
             if(article == null){
@@ -413,35 +414,35 @@ public class Main {
                 return status;
             }
 
-            Classes.data.Comment comment = new Classes.data.Comment(jsonComment.getComment(),user,article);
+            Classes.jpaIntegration.Comment comment = new Classes.jpaIntegration.Comment(jsonComment.getComment(),user,article);
 
-            if(commentDao.create(comment) == 1){
+            if(commentHandler.insertIntoDatabase(comment)){
                 //Status ok:
                 status.setStatus("success");
                 status.setReturnObject(comment);
+
                 return status;
-            }
-            else{
+            } else {
                 status.setStatus("error");
                 status.getErrors().add("Error insertando en la base de datos.");
+
                 return status;
             }
-        },gson::toJson);
+        }, gson::toJson);
 
         post("/comment/delete/:id",(request, response) -> {
             int id = Integer.parseInt(request.params("id"));
 
+            CommentHandler commentHandler = CommentHandler.getInstance();
 
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<Classes.data.Comment,Integer> commentDao = dbHandler.getCommentDao();
-            Classes.data.Comment comment = commentDao.queryForId(id);
-            if(commentDao.delete(comment) == 1){
+            Classes.jpaIntegration.Comment comment = commentHandler.findObjectWithId(id);
+
+            if(commentHandler.deleteCommentById(id) == 1) {
                 ActionStatus status = new ActionStatus();
                 status.setStatus("success");
                 status.setReturnObject(comment);
                 return status;
-            }
-            else{
+            } else {
                 ActionStatus status = new ActionStatus();
                 status.setStatus("error");
                 return  status;
@@ -452,21 +453,21 @@ public class Main {
             Map<String, Object> attributes = request.attribute(MODEL_PARAM);
             int tagId = Integer.parseInt(request.params(":tag"));
 
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<Tag, Integer> tagDao = dbHandler.getTagDao();
-            Dao<Article, Integer> articleDao = dbHandler.getArticleDao();
-            Tag tagToLook = null;
-            List<Article> articlesFromTag = null;
+            TagHandler tagHandler = TagHandler.getInstance();
+
+            Classes.jpaIntegration.Tag tagToLook = null;
+            Set<Classes.jpaIntegration.Article> articlesFromTag = null;
             try {
-                tagToLook = tagDao.queryForId(tagId);
-                articlesFromTag = dbHandler.lookupArticlesForTag(tagToLook);
+                tagToLook = tagHandler.findObjectWithId(tagId);
+                articlesFromTag = tagToLook.getArticles();
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                conn.close();
             }
 
-            attributes.put("articles", articlesFromTag);
+            List<Classes.jpaIntegration.Article> orderedArticles = new ArrayList<>(articlesFromTag);
+            orderedArticles.sort((o1, o2) -> o2.getDatePublished().compareTo(o1.getDatePublished()));
+
+            attributes.put("articles", orderedArticles);
             attributes.put("tag", tagToLook);
             attributes.put("template_name", "./tags/show.ftl");
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
@@ -518,7 +519,6 @@ public class Main {
         ArticleHandler articleHandler = ArticleHandler.getInstance();
         TagHandler tagHandler = TagHandler.getInstance();
 
-        DatabaseHandler dbHandler = DatabaseHandler.getInstance();
         Map<String,Object> attributes = request.attribute(MODEL_PARAM);
         //get fields:
         String articleTitle = request.queryParams("article_title");
@@ -549,16 +549,14 @@ public class Main {
 
                 if(!is_edit){
                     article = new Classes.jpaIntegration.Article(articleTitle, articleBody, publishedDate, user);
-                }
-                else{
+                } else {
                     article.setTitle(articleTitle);
                     article.setBody(articleBody);
                 }
                 //PERSIST.
                 if(is_edit){
                     articleHandler.updateObject(article);
-                }
-                else{
+                } else {
                     articleHandler.insertIntoDatabase(article);
                 }
 

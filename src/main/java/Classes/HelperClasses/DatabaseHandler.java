@@ -55,17 +55,21 @@ public class DatabaseHandler<T> {
      */
 
 
-    public void insertIntoDatabase(T entity) throws Exception {
+    public boolean insertIntoDatabase(T entity) throws Exception {
+        boolean success = false;
         EntityManager em = getEntityManager();
         em.getTransaction().begin();
         try {
             em.persist(entity);
             em.getTransaction().commit();
-        }catch (Exception ex){
+            success = true;
+        } catch (Exception ex) {
             em.getTransaction().rollback();
+            success = false;
             throw ex;
         } finally {
             em.close();
+            return success;
         }
     }
 
@@ -86,9 +90,9 @@ public class DatabaseHandler<T> {
             CriteriaQuery<T> criteriaQuery = em.getCriteriaBuilder().createQuery(entityClass);
             criteriaQuery.select(criteriaQuery.from(entityClass));
             return em.createQuery(criteriaQuery).getResultList();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             throw ex;
-        }finally {
+        } finally {
             em.close();
         }
     }
@@ -99,7 +103,7 @@ public class DatabaseHandler<T> {
         try {
             em.merge(entity);
             em.getTransaction().commit();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             em.getTransaction().rollback();
             throw ex;
         } finally {
@@ -107,17 +111,21 @@ public class DatabaseHandler<T> {
         }
     }
 
-    public void deleteObject(T entity) throws Exception {
+    public boolean deleteObject(T entity) throws Exception {
+        boolean success = false;
         EntityManager em = getEntityManager();
         em.getTransaction().begin();
         try {
             em.remove(entity);
             em.getTransaction().commit();
-        }catch (Exception ex){
+            success = true;
+        } catch (Exception ex) {
             em.getTransaction().rollback();
+            success = false;
             throw ex;
         } finally {
             em.close();
+            return success;
         }
     }
 

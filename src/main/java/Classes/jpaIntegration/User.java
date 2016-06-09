@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ import java.util.Set;
             query = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password"
     )
 })
-public class User {
+public class User implements Serializable {
     public static String QUERY_NAME_FIND_BY_USERNAME = "findUserByUsername";
     public static String QUERY_NAME_FIND_BY_USERNAME_AND_PASSWORD = "findUserByUsernameAndPassword";
 

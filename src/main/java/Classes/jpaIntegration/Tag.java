@@ -6,6 +6,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import java.util.Set;
                 query = "SELECT t FROM Tag t WHERE t.description = :description"
         )
 })
-public class Tag {
+public class Tag implements Serializable {
 
     public static String QUERY_NAME_TAG_BY_DESC = "getTagByDescription";
 
