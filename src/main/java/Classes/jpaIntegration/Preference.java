@@ -11,5 +11,6 @@ import java.io.Serializable;
 
 public enum Preference{
     LIKE,
-    DISLIKE
+    DISLIKE,
+    NEUTRAL
 }

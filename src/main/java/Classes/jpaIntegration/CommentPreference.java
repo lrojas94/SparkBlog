@@ -16,7 +16,7 @@ public class CommentPreference implements Serializable {
     @GeneratedValue
     private int id;
     @Column(name = "preference",nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Preference preference;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user",nullable = false)
