@@ -19,13 +19,13 @@
         <div class="col-xs-4 text-right">
             <a href="/article/view/${article.getId()}" >Leer mas</a>
         </div>
-        <#assign ArticleTags = article.getArticleTags()>
+        <#assign ArticleTags = article.getTags()>
         <#if ArticleTags?size != 0>
             <div class="col-xs-12 article-tags">
                 <p>
                     Tags <i class="fa fa-tags"></i>:
                     <#list ArticleTags as articleTag>
-                        <a href="/tags/${articleTag.tag.getId()}">${articleTag.tag.getDescription()}</a>
+                        <a href="/tags/${articleTag.getId()}">${articleTag.getDescription()}</a>
                     </#list>
                 </p>
             </div>

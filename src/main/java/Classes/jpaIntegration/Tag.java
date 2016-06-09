@@ -6,6 +6,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -29,12 +30,12 @@ public class Tag {
     private int id;
     @Column(name = "description",nullable = false,unique = true)
     private String description;
-    @ManyToMany(mappedBy = "tags")
-    private Set<Article> articles;
+    @ManyToMany(mappedBy = "tags",cascade = CascadeType.ALL)
+    private Set<Article> articles = new HashSet<>();
 
     public Tag() {}
 
-    public Tag(String description, Article article) {
+    public Tag(String description) {
         this.description = description;
     }
 
@@ -51,11 +52,21 @@ public class Tag {
     }
 
 
+
+
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Tag){
             return ((Tag) obj).getDescription().equals(description);
         }
         return super.equals(obj);
+    }
+
+    public Set<Article> getArticles() {
+        return articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        this.articles = articles;
     }
 }

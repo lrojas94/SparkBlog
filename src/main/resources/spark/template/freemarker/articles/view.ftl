@@ -9,9 +9,9 @@
             <p>${article.getBody()}</p>
             <p>
                 <i class="fa fa-tags"></i> Tags:
-                <#assign ArticleTags = article.getArticleTags()>
+                <#assign ArticleTags = article.getTags()>
                 <#list ArticleTags as articleTag>
-                    <a href="/tags/${articleTag.getTag().getId()}">#${articleTag.getTag().getDescription()}</a>
+                    <a href="/tags/${articleTag.getId()}">#${articleTag.getDescription()}</a>
                 </#list>
             </p>
         </div>

@@ -19,6 +19,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.support.ConnectionSource;
 import com.sun.xml.internal.bind.v2.model.core.ID;
+import org.hibernate.Hibernate;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -175,7 +176,6 @@ public class Main {
         get("/article/view/:id",(request, response) -> {
             Map<String, Object> attributes = request.attribute(MODEL_PARAM);
             attributes.put("template_name","./articles/view.ftl");
-            ConnectionSource conn = null;
             try{
                 int id = Integer.parseInt(request.params("id"));
                 ArticleHandler articleHandler = ArticleHandler.getInstance();
@@ -196,9 +196,6 @@ public class Main {
                     redirectWrongAddress(request,response);
                 }
             }
-            finally {
-                conn.close();
-            }
             return  "";
         });
 
@@ -213,7 +210,12 @@ public class Main {
         });
 
         post("/article/add", (request, response) -> {
-            return renderer.render(articleAddEdit(request,response,null,false));
+            ModelAndView mav = articleAddEdit(request,response,null,false);
+            if(mav != null)
+                return renderer.render(mav);
+            else
+                return "";
+
         });
 
         before("/article/edit/:id",new ArticleAuthorFilter(renderer,true));
@@ -255,46 +257,41 @@ public class Main {
             try {
 
                 int id = Integer.parseInt(request.params("id"));
-                Dao<Article, Integer> articleDao = dbHandler.getArticleDao();
-                Article article = articleDao.queryForId(id);
+                ArticleHandler articleHandler = ArticleHandler.getInstance();
+                Classes.jpaIntegration.Article article = articleHandler.findObjectWithId(id);
 
                 if (article == null) {
                     request.session(true).attribute("message_type", "danger");
                     request.session(true).attribute("message", "Articulo no encontrado.");
                     response.redirect("/");
                 }
-
-                return renderer.render(articleAddEdit(request,response,article,true));
+                ModelAndView mav = (articleAddEdit(request,response,article,true));
+                if(mav != null)
+                    return renderer.render(mav);
+                else
+                    return "";
 
             }
             catch (Exception e){
                 System.out.println(e.getMessage());
             }
 
-            return null;
+            return "";
         });
 
         before("/article/delete/:id",new ArticleAuthorFilter(renderer,true));
 
         get("/article/delete/:id",(request, response) -> {
            int id = Integer.parseInt(request.params("id"));
-            ConnectionSource conn = dbHandler.getConnection();
-            Dao<Article,Integer> articleDao = dbHandler.getArticleDao();
+            ArticleHandler articleHandler = ArticleHandler.getInstance();
+            articleHandler.deleteObject(articleHandler.findObjectWithId(id));
             //Delete by id:
-            if(articleDao.deleteById(id) == 1){
-                //Article deleted:
-                request.session(true).attribute("message_type","success");
-                request.session(true).attribute("message","Articulo borrado correctamente");
-                System.out.println(request.headers("Referer"));
-                response.redirect(request.headers("Referer"));
-            }
-            else{
-                request.session(true).attribute("message_type","danger");
-                request.session(true).attribute("message","Error borrando Articulo");
-                response.redirect("/");
-            }
+            request.session(true).attribute("message_type","success");
+            request.session(true).attribute("message","Articulo borrado correctamente");
+            System.out.println(request.headers("Referer"));
+            response.redirect(request.headers("Referer"));
 
-            return null;
+            return "";
         });
 
         //--------------------------- ARTICLE CRUD FINISH ----------------------------------------//
@@ -557,11 +554,12 @@ public class Main {
                     article.setTitle(articleTitle);
                     article.setBody(articleBody);
                 }
+                //PERSIST.
                 if(is_edit){
-                    articleHandler.updateObject(article)
+                    articleHandler.updateObject(article);
                 }
                 else{
-                    articleHandler.insertIntoDatabase(article)
+                    articleHandler.insertIntoDatabase(article);
                 }
 
                 for (String tagTitle : articleTags) {
@@ -573,45 +571,54 @@ public class Main {
                         tag = existingTag;
                     }
                     else{
-                        tag = new Classes.jpaIntegration.Tag(tagTitle, article);
+                        tag = new Classes.jpaIntegration.Tag(tagTitle);
                         tagHandler.insertIntoDatabase(tag);
+                        tag.getArticles().add(article);
+                        article.getTags().add(tag);
+                        continue;
                     }
 
-                    Map<String,Object> fieldValues = new HashMap<>();
-                    fieldValues.put("article_id",article);
-                    fieldValues.put("tag_id",tag);
-
-                    if(is_edit && article.getTags().contains(tag))
+                    if(is_edit && tag.getArticles().contains(article))
                         continue;
+
                     article.getTags().add(tag);
+                    tag.getArticles().add(article);
+//                    tagHandler.updateObject(tag);
 
 
-                    if(is_edit && article.getTags() != null){
-                        //Delete removed tags:
-                        for(Classes.jpaIntegration.Tag aTag: article.getTags()){
-                            if(!articleTags.contains(aTag.getDescription())
-                                article.getTags().remove(aTag);
+
+
+                }
+
+                if(is_edit && article.getTags() != null){
+                    //Delete removed tags:
+                    List<Classes.jpaIntegration.Tag> removeTags = new ArrayList<Classes.jpaIntegration.Tag>();
+
+                    for(Classes.jpaIntegration.Tag aTag : article.getTags()){
+                        if(!articleTags.contains(aTag.getDescription())){
+                            removeTags.add(aTag);
                         }
                     }
 
-                    request.session(true).attribute("message_type","success");
-
-                    articleHandler.updateObject(article);
-
-                    if(is_edit)
-                        request.session(true).attribute("message","Articulo editado satisfactoriamente");
-                    else
-                        request.session(true).attribute("message","Articulo agregado satisfactoriamente");
-
-                    response.redirect("/article/view/" + article.getId());
-                } else {
-                    errors.add("ERROR EN BASE DE DATOS");
-                    attributes.put("errors", errors);
-                    attributes.put("article",article);
-                    attributes.put("template_name","./articles/add_edit.ftl");
-                    return new ModelAndView(attributes, BASE_LAYOUT);
+                    for(Classes.jpaIntegration.Tag aTag : removeTags){
+                        aTag.getArticles().remove(article);
+                        article.getTags().remove(aTag);
+                    }
                 }
-            } else {
+
+                articleHandler.updateObject(article);
+
+                request.session(true).attribute("message_type","success");
+
+                if(is_edit)
+                    request.session(true).attribute("message","Articulo editado satisfactoriamente");
+                else
+                    request.session(true).attribute("message","Articulo agregado satisfactoriamente");
+
+                response.redirect("/article/view/" + article.getId());
+            }
+            else
+            {
                 article.setTitle(articleTitle);
                 article.setBody(articleBody);
                 attributes.put("article",article);

@@ -12,6 +12,7 @@ import org.eclipse.jetty.util.annotation.Name;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ public class Article {
     @Column(name = "title",unique = true)
     @Expose
     private String title;
-    @Column(name = "body")
+    @Column(name = "body",length = 1000)
     private String body;
     @Column(name = "date_published",nullable = false)
     private Date datePublished;
@@ -47,9 +48,9 @@ public class Article {
     private User author;
     @ManyToMany
     @JoinTable(name = "article_tags")
-    private Set<Tag> tags;
+    private Set<Tag> tags = new HashSet<Tag>();
     @OneToMany(mappedBy = "article",cascade = CascadeType.ALL)
-    private Set<Comment> comments;
+    private Set<Comment> comments = new HashSet<Comment>();;
     @Column(name = "likes")
     private Integer likes;
     @Column(name = "dislikes")

@@ -16,7 +16,6 @@ import java.util.Map;
 
 public class ArticleAuthorFilter extends CustomFilter {
 
-    ConnectionSource conn = null;
     boolean adminCanModify = true;
     Article article;
 
@@ -28,16 +27,13 @@ public class ArticleAuthorFilter extends CustomFilter {
 
     @Override
     public void handle(Request request, Response response) throws Exception {
-        //First, check if logged in:
-        if(conn == null){
-            conn = DatabaseHandler.getConnection();
-        }
 
-        Dao<Article,Integer> articleDao = DatabaseHandler.getInstance().getArticleDao();
+        ArticleHandler articleHandler = ArticleHandler.getInstance();
+
         try{
 
             int articleId = Integer.parseInt(request.params("id"));
-            article = articleDao.queryForId(articleId);
+            article = articleHandler.findObjectWithId(articleId);
             User user = request.session().attribute("user");
             Map<String,Object> attributes = request.attribute(Main.MODEL_PARAM);
 
@@ -47,9 +43,9 @@ public class ArticleAuthorFilter extends CustomFilter {
                 attributes.put("forbidden_message","Usted no ha iniciado sesion.");
                 Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
             }
-            if(article.getAuthor().getId() != user.getId() ||
-                    (!article.getAuthor().equals(user) && !user.getAuthor()) ||
-                    !(adminCanModify && user.getAdministrator())){
+            if(!article.getAuthor().getUsername().equals(user.getUsername()) ||
+                    (!article.getAuthor().getUsername().equals(user.getUsername()) && !user.getAuthor()) ||
+                    (adminCanModify && user.getAdministrator())){
                 attributes.put("forbidden_message","Este articulo no le pertenece.");
                 Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
             }
@@ -60,9 +56,6 @@ public class ArticleAuthorFilter extends CustomFilter {
         }
         catch (SQLException e){
             System.out.println(e.getMessage());
-        }
-        finally {
-            conn.close();
         }
 
 
