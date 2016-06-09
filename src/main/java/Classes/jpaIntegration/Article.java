@@ -59,9 +59,9 @@ public class Article implements Serializable {
     @OneToMany(mappedBy = "article",cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<Comment>();;
     @Column(name = "likes")
-    private Integer likes;
+    private Integer likes = 0;
     @Column(name = "dislikes")
-    private Integer dislikes;
+    private Integer dislikes = 0;
 
     public Article() {}
 

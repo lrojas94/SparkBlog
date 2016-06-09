@@ -97,6 +97,16 @@ html,body{
     padding: 10px 0;
     text-align: justify;
 }
+
+.flex-container{
+    display:flex;
+}
+
+.flex-item{
+    display:flex;
+    flex-direction: column;
+    margin: auto;
+}
 /* BOOTSTRAP MODS */
 .container-fluid{
     margin-left: 0px;

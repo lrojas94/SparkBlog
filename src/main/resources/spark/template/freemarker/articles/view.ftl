@@ -18,7 +18,23 @@
     </div>
     <!-- COMMENTS FORM -->
     <#if user??>
-        <div class="row">
+        <div class="row pull-right">
+            <div class="col-xs-12">
+                <a href="#" class="like-article btn btn-default">
+                    <p class="text-center text-primary"><i class="fa fa-thumbs-up"></i>
+                        <br>
+                    ${article.getLikes()!"0"}
+                    </p>
+                </a>
+                <a href="#" class="dislike-article btn btn-default">
+                    <p class="text-center text-primary"><i class="fa fa-thumbs-down"></i>
+                        <br>
+                    ${article.getLikes()!"0"}
+                    </p>
+                </a>
+            </div>
+        </div>
+        <div class="row ">
             <div class="col-xs-12">
                 <form action="/comment/add" method="post" id="add-comment-form" role="form">
                     <legend>Deja un comentario!</legend>
