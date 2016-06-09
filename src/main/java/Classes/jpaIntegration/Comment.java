@@ -6,6 +6,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -39,10 +41,8 @@ public class Comment implements Serializable {
     @JoinColumn(name = "article",nullable = false)
     @Expose
     private Article article;
-    @Column(name = "likes")
-    private Integer likes;
-    @Column(name = "dislikes")
-    private Integer dislikes;
+    @OneToMany(mappedBy = "comment")
+    private Set<CommentPreference> commentPreferenceSet = new HashSet<>();
 
     public Comment() {}
 
@@ -80,12 +80,12 @@ public class Comment implements Serializable {
         this.article = article;
     }
 
-    public Integer getLikes() { return likes; }
 
-    public void setLikes(Integer likes) { this.likes = likes; }
+    public Set<CommentPreference> getCommentPreferenceSet() {
+        return commentPreferenceSet;
+    }
 
-    public Integer getDislikes() { return dislikes; }
-
-    public void setDislikes(Integer dislikes) { this.dislikes = dislikes; }
-
+    public void setCommentPreferenceSet(Set<CommentPreference> commentPreferenceSet) {
+        this.commentPreferenceSet = commentPreferenceSet;
+    }
 }

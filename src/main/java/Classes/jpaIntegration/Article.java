@@ -57,11 +57,9 @@ public class Article implements Serializable {
     @JoinTable(name = "article_tags")
     private Set<Tag> tags = new HashSet<Tag>();
     @OneToMany(mappedBy = "article",cascade = CascadeType.ALL)
-    private Set<Comment> comments = new HashSet<Comment>();;
-    @Column(name = "likes")
-    private Integer likes = 0;
-    @Column(name = "dislikes")
-    private Integer dislikes = 0;
+    private Set<Comment> comments = new HashSet<Comment>();
+    @OneToMany(mappedBy = "article")
+    private Set<ArticlePreference> articlePreferences = new HashSet<>();
 
     public Article() {}
 
@@ -108,15 +106,6 @@ public class Article implements Serializable {
         this.author = author;
     }
 
-
-    public Integer getLikes() { return likes; }
-
-    public void setLikes(Integer likes) { this.likes = likes; }
-
-    public Integer getDislikes() { return dislikes; }
-
-    public void setDislikes(Integer dislikes) { this.dislikes = dislikes; }
-
     public String getFormattedTags(){
 
         if(getTags() == null){
@@ -139,5 +128,14 @@ public class Article implements Serializable {
 
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+
+    public Set<ArticlePreference> getArticlePreferences() {
+        return articlePreferences;
+    }
+
+    public void setArticlePreferences(Set<ArticlePreference> articlePreferences) {
+        this.articlePreferences = articlePreferences;
     }
 }

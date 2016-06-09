@@ -50,6 +50,10 @@ public class User implements Serializable {
     private Set<Article> articles = new HashSet<Article>();
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<Comment>();
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private Set<ArticlePreference> articlePreferences = new HashSet<ArticlePreference>();
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private Set<CommentPreference> commentPreferences = new HashSet<CommentPreference>();
 
     public User() {}
 
@@ -101,8 +105,6 @@ public class User implements Serializable {
         this.author = author;
     }
 
-
-
     @Override
     public String toString() {
         return username;
@@ -123,5 +125,22 @@ public class User implements Serializable {
 
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+
+    public Set<ArticlePreference> getArticlePreferences() {
+        return articlePreferences;
+    }
+
+    public void setArticlePreferences(Set<ArticlePreference> articlePreferences) {
+        this.articlePreferences = articlePreferences;
+    }
+
+    public Set<CommentPreference> getCommentPreferences() {
+        return commentPreferences;
+    }
+
+    public void setCommentPreferences(Set<CommentPreference> commentPreferences) {
+        this.commentPreferences = commentPreferences;
     }
 }
