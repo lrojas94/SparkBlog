@@ -82,6 +82,17 @@ public class Main {
             request.attribute(MODEL_PARAM,attributes);
         });
 
+        after((request, response) -> {
+            //Update user after requests:
+            if(request.session(true).attribute("user") != null){
+                //update user:
+                Classes.jpaIntegration.User currentUser = request.session().attribute("user");
+                UserHandler userHandler = UserHandler.getInstance();
+                Classes.jpaIntegration.User user = userHandler.findObjectWithId(currentUser.getId());
+                request.session(true).attribute("user",user);
+            }
+        });
+
         get("/",(request,response) -> {
             ArticleHandler articleHandler = ArticleHandler.getInstance();
             List<Classes.jpaIntegration.Article> articles = articleHandler.findArticlesInDescOrder();
@@ -410,7 +421,7 @@ public class Main {
         // -------------------------------- COMMENTS CRUD ---------------------------------------------------
         post("/comment/add","application/json",(request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);
-            Classes.JsonClasses.Comment jsonComment = gson.fromJson(request.body(), Comment.class);
+            Comment jsonComment = gson.fromJson(request.body(), Comment.class);
 
             ArticleHandler articleHandler = ArticleHandler.getInstance();
             CommentHandler commentHandler = CommentHandler.getInstance();
@@ -477,6 +488,49 @@ public class Main {
                 return  status;
             }
         },gson::toJson);
+
+        post("/comment/preference",(request, response) -> {
+            UserPreference userPreference = gson.fromJson(request.body(),UserPreference.class);
+            CommentHandler commentHandler = CommentHandler.getInstance();
+            UserHandler userHandler = UserHandler.getInstance();
+            CommentPreferenceHandler commentPreferenceHandler = CommentPreferenceHandler.getInstance();
+
+            ActionStatus status = new ActionStatus();
+            if(userPreference.isArticle()){
+                status.setStatus("error");
+                status.getErrors().add("Esta ruta solo trabaja con comentarios.");
+                return status;
+            }
+
+            Classes.jpaIntegration.User user = userHandler.findObjectWithId(userPreference.getUserId());
+            Classes.jpaIntegration.Comment comment = commentHandler.findObjectWithId(userPreference.getPreferenceId());
+            CommentPreference commentPreference = commentPreferenceHandler.findByUserComment(user.getId(),comment.getId());
+            if(commentPreference != null){
+                //Exists
+                commentPreference.setPreference(userPreference.getPreference());
+                commentPreferenceHandler.updateObject(commentPreference);
+            }
+            else{
+                //Create new
+                commentPreference = new CommentPreference();
+                commentPreference.setPreference(userPreference.getPreference());
+                commentPreference.setComment(comment);
+                commentPreference.setAuthor(user);
+                comment.getCommentPreferenceSet().add(commentPreference);
+                user.getCommentPreferences().add(commentPreference);
+                commentPreferenceHandler.insertIntoDatabase(commentPreference);
+
+            }
+
+            status.setStatus("success");
+            HashMap<String,Object> returnData = new HashMap<String, Object>();
+            returnData.put("likesCount",comment.getLikes());
+            returnData.put("dislikesCount",comment.getDislikes());
+            status.setReturnObject(returnData);
+
+            return status;
+        },gson::toJson);
+        // ---------------- END OF COMMENT CRUD -----------------------------------------
 
         get("/tags/:tag", (request, response) -> {
             Map<String, Object> attributes = request.attribute(MODEL_PARAM);

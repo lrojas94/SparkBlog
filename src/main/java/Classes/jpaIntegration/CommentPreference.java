@@ -10,18 +10,25 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "comment_preference")
+@NamedQueries({
+        @NamedQuery(
+                name = "CP.getAPByUserComment",
+                query = "SELECT cp FROM CommentPreference cp WHERE cp.user.id = :userId " +
+                        "AND cp.comment.id = :commentId"
+        )
+})
 public class CommentPreference implements Serializable {
-
+    public static String QUERY_NAME_GET_BY_USER_COMMENT= "CP.getAPByUserComment";
     @Id
     @GeneratedValue
     private int id;
     @Column(name = "preference",nullable = false)
     @Enumerated(EnumType.STRING)
     private Preference preference;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user",nullable = false)
     private User user;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "comment",nullable = false)
     private Comment comment;
 

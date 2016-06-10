@@ -26,18 +26,18 @@ import java.io.Serializable;
 @Table(name = "articles")
 @NamedQueries({
         @NamedQuery(
-                name = "findArticlesByTitle",
+                name = "Article.findArticlesByTitle",
                 query = "Select a FROM Article a WHERE a.title = :title"
         ),
         @NamedQuery(
-                name = "findArticlesInDescOrder",
+                name = "Article.findArticlesInDescOrder",
                 query = "SELECT a FROM Article a ORDER BY a.datePublished DESC"
         )
 })
 public class Article implements Serializable {
 
-    public static String QUERY_NAME_FIND_ARTICLES_BY_TITLE = "findArticlesByTitle";
-    public static String QUERY_NAME_FIND_ARTICLES_IN_DESC_ORDER = "findArticlesInDescOrder";
+    public static String QUERY_NAME_FIND_ARTICLES_BY_TITLE = "Article.findArticlesByTitle";
+    public static String QUERY_NAME_FIND_ARTICLES_IN_DESC_ORDER = "Article.findArticlesInDescOrder";
 
     @Id
     @GeneratedValue

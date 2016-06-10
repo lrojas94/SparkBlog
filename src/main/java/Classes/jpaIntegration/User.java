@@ -17,17 +17,17 @@ import java.util.Set;
 @Table(name = "users")
 @NamedQueries({
     @NamedQuery(
-            name = "findUserByUsername",
+            name = "User.findUserByUsername",
             query = "SELECT u FROM User u WHERE u.username = :username"
     ),
     @NamedQuery(
-            name = "findUserByUsernameAndPassword",
+            name = "User.findUserByUsernameAndPassword",
             query = "SELECT u FROM User u WHERE u.username = :username AND u.password = :password"
     )
 })
 public class User implements Serializable {
-    public static String QUERY_NAME_FIND_BY_USERNAME = "findUserByUsername";
-    public static String QUERY_NAME_FIND_BY_USERNAME_AND_PASSWORD = "findUserByUsernameAndPassword";
+    public static String QUERY_NAME_FIND_BY_USERNAME = "User.findUserByUsername";
+    public static String QUERY_NAME_FIND_BY_USERNAME_AND_PASSWORD = "User.findUserByUsernameAndPassword";
 
 
     @Id
@@ -155,13 +155,34 @@ public class User implements Serializable {
         return articlePreferences.stream()
                 .filter(ap -> {
                     return ap.getArticle().getId() == article.getId() && ap.getPreference() == Preference.DISLIKE;
-                }).findFirst().isPresent();
+                }).findAny().isPresent();
     }
 
     public boolean hasPreference(Article article){
         return articlePreferences.stream()
                 .filter(ap ->
                      ap.getArticle().getId() == article.getId() && ap.getPreference() != Preference.NEUTRAL
-                ).findFirst().isPresent();
+                ).findAny().isPresent();
+    }
+
+    public boolean likes(Comment comment){
+        return commentPreferences.stream()
+                .filter(cp ->
+                        cp.getComment().getId() == comment.getId() && cp.getPreference() == Preference.LIKE
+                ).findAny().isPresent();
+    }
+
+    public boolean dislikes(Comment comment){
+        return commentPreferences.stream()
+                .filter(cp -> {
+                    return cp.getComment().getId() == comment.getId() && cp.getPreference() == Preference.DISLIKE;
+                }).findAny().isPresent();
+    }
+
+    public boolean hasPreference(Comment comment){
+        return commentPreferences.stream()
+                .filter(cp ->
+                        cp.getComment().getId() == comment.getId() && cp.getPreference() != Preference.NEUTRAL
+                ).findAny().isPresent();
     }
 }

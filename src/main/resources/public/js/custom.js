@@ -85,6 +85,58 @@ var Comments = function(){
         })
     };
 
+    var setUserPreference = function(preference,elem){
+        //Gather general info:
+
+        elem.blur();
+
+        var data = {
+            isArticle : false,
+            preferenceId: $(elem).closest('td').first().find('.comment-comment').data('id'), //This holds comments ids on tables.
+            userId: $('#login_status').data('user-id'),
+            preference: preference
+        };
+
+        var comment = $(elem).closest('td');
+
+        $.ajax({
+            url: "/comment/preference",
+            method: "POST",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(data){
+                //Set article likes/dislikes:
+                var like = comment.find('.like-comment');
+                var dislike = comment.find('.dislike-comment');
+                var neutral = comment.find('.neutral-comment');
+                like.find('.count').text(data.returnObject.likesCount);
+                dislike.find('.count').text(data.returnObject.dislikesCount);
+
+                switch(preference){
+                    case "like":
+                        //show other two:
+                        dislike.removeClass("disabled");
+                        neutral.removeClass("disabled");
+                        like.addClass("disabled");
+                        break;
+                    case "dislike":
+                        like.removeClass("disabled");
+                        neutral.removeClass("disabled");
+                        dislike.addClass("disabled");
+                        break;
+                    case "neutral":
+                        dislike.removeClass("disabled");
+                        like.removeClass("disabled");
+                        neutral.addClass("disabled");
+                        break;
+                }
+                console.log(data);
+            }
+
+        });
+    };
+
+
     $("#article-comment-table").dataTable({
         language: HelpersNamespace.DTLanguage,
         pageLength: 5,
@@ -118,15 +170,23 @@ var Comments = function(){
                     var commentAuthor = $(commentTemplate).find(".comment-author");
                     commentAuthor.attr("href",commentAuthor.attr("href") + Comment.author.id);
                     commentAuthor.find("h4").text(Comment.author.username);
-                    var commentSpace = $(commentTemplate).find('.comment-comment');
-                    commentSpace.append(Comment.description);
-                    var commentDelete = $(commentSpace).find(".comment-delete-link");
+                    var commentSpace = $(commentTemplate).find('.comment-comment')[0];
+                    $(commentSpace)[0].dataset.id = Comment.id.toString();
+                    $(commentSpace).append(Comment.description);
+                    var commentDelete = $(commentTemplate).find(".comment-delete-link");
                     if($('#article-comment-table').data('user-admin')){
                         var link = commentDelete.find('a');
                         link.attr("href",link.attr("href")+Comment.id);
                     }
                     else{
-                        commentDelete.remove();
+                        if($('#login_status').length != 0) {
+                            //User is logged in
+                            //Just remove delete:
+                            $(commentDelete).remove();
+                        }
+                        else{
+                            commentTemplate.find('.needsUser').remove();
+                        }
                     }
 
                     $('#article-comment-table').DataTable().row.add([commentTemplate.html(),Comment.id.toString()]).sort().draw();
@@ -147,7 +207,25 @@ var Comments = function(){
 
     $('body').on({
         click : initArticleCommentDelete
-    },'.delete-comment');
+    },'.delete-comment')
+        .on({
+            click: function(e){
+                e.preventDefault();
+                setUserPreference("like",this)
+            }
+        },'.like-comment')
+        .on({
+            click: function(e){
+                e.preventDefault();
+                setUserPreference("dislike",this)
+            }
+        },'.dislike-comment')
+        .on({
+            click: function(e){
+                e.preventDefault();
+                setUserPreference("neutral",this)
+            }
+        },'.neutral-comment');
 };
 
 var Articles = function(){

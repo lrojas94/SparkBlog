@@ -12,14 +12,14 @@ import java.io.Serializable;
 @Table(name = "article_preference")
 @NamedQueries({
         @NamedQuery(
-                name = "getAPByUserArticle",
+                name = "AP.getAPByUserArticle",
                 query = "SELECT ap FROM ArticlePreference ap WHERE ap.user.id = :userId " +
                         "AND ap.article.id = :articleId"
         )
 })
 public class ArticlePreference implements Serializable {
 
-    public static String QUERY_NAME_GET_BY_USER_ARTICLE = "getAPByUserArticle";
+    public static String QUERY_NAME_GET_BY_USER_ARTICLE = "AP.getAPByUserArticle";
 
     @Id
     @GeneratedValue

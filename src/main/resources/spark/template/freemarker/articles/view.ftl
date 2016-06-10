@@ -64,7 +64,7 @@
     <#if article.getComments()??>
         <#assign Comments = article.getComments()>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-12" style="overflow: auto">
                 <table id="article-comment-table" data-user-admin="${(user?? && (user.getAdministrator() || article.getAuthor().getId() = user.getId()))?string }" class="table table-responsive table-striped">
                     <thead>
                         <th>Comentarios</th>
@@ -74,16 +74,31 @@
                         <#list Comments as comment>
                             <#assign author = comment.getAuthor()>
                             <tr>
-                                <td>
+                                <td >
                                     <a href="/user/${author.getId()}"><h4>${author}</h4></a>
-                                    <p>
+                                    <p class="comment-comment" data-id="${comment.getId()}">
                                     ${comment.getDescription()}
-                                    <#if user?? && (article.getAuthor() = user || user.getAdministrator())>
-                                        <a href="/comment/delete/${comment.getId()}" class="delete-comment pull-right">
-                                            <i class="fa fa-exclamation-triangle"></i> Eliminar
-                                        </a>
-                                    </#if>    
                                     </p>
+                                    <#if user??>
+                                        <p>
+                                            <a href="#" class="btn btn-link like-comment <#if user.likes(comment)>disabled</#if>">
+                                            <span class="count">${comment.getLikes()}</span>
+                                                <i class="fa fa-thumbs-up"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-link dislike-comment <#if user.dislikes(comment)>disabled</#if>">
+                                            <span class="count">${comment.getDislikes()}</span>
+                                                <i class="fa fa-thumbs-down"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-link neutral-comment <#if !user.hasPreference(comment)>disabled</#if>">
+                                                <i class="fa fa-meh-o"></i>
+                                            </a>
+                                            <#if user?? && (article.getAuthor() = user || user.getAdministrator())>
+                                                <a href="/comment/delete/${comment.getId()}" class="delete-comment pull-right">
+                                                    <i class="fa fa-exclamation-triangle"></i> Eliminar
+                                                </a>
+                                            </#if>
+                                        </p>
+                                    </#if>
                                 </td>
                                 <td hidden>${comment.getId()}</td>
                             </tr>
@@ -97,9 +112,22 @@
 
 <div id="comment-template" hidden>
     <a href="/user/" class="comment-author"><h4></h4></a>
-    <p class="comment-comment">
+    <p class="comment-comment" data-id="-1">
         <!-- COMMENT ITSELF -->
-    <span class="comment-delete-link">
+    </p>
+    <p class="needsUser">
+        <a href="#" class="btn btn-link like-comment ">
+            <span class="count">0</span>
+            <i class="fa fa-thumbs-up"></i>
+        </a>
+        <a href="#" class="btn btn-link dislike-comment">
+            <span class="count">0</span>
+            <i class="fa fa-thumbs-down"></i>
+        </a>
+        <a href="#" class="btn btn-link neutral-comment disabled">
+            <i class="fa fa-meh-o"></i>
+        </a>
+        <span class="comment-delete-link">
         <a href="/comment/delete/" class="delete-comment pull-right">
         <i class="fa fa-exclamation-triangle"></i> Eliminar
         </a>

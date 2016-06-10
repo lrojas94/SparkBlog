@@ -18,13 +18,13 @@ import java.util.Set;
 @Table(name = "comments")
 @NamedQueries({
         @NamedQuery(
-                name = "deleteCommentById",
+                name = "Comment.deleteCommentById",
                 query = "DELETE FROM Comment c WHERE c.id = :id"
         )
 })
 public class Comment implements Serializable {
 
-    public static String QUERY_NAME_DELETE_COMMENT_BY_ID = "deleteCommentById";
+    public static String QUERY_NAME_DELETE_COMMENT_BY_ID = "Comment.deleteCommentById";
 
     @Id
     @GeneratedValue
@@ -87,5 +87,17 @@ public class Comment implements Serializable {
 
     public void setCommentPreferenceSet(Set<CommentPreference> commentPreferenceSet) {
         this.commentPreferenceSet = commentPreferenceSet;
+    }
+
+    public Integer getLikes(){
+        return commentPreferenceSet.stream().filter(commentPreference -> {
+            return commentPreference.getPreference() == Preference.LIKE;
+        }).mapToInt(value -> 1).sum();
+    }
+
+    public Integer getDislikes(){
+        return commentPreferenceSet.stream().filter(commentPreference -> {
+            return commentPreference.getPreference() == Preference.DISLIKE;
+        }).mapToInt(value -> 1).sum();
     }
 }
