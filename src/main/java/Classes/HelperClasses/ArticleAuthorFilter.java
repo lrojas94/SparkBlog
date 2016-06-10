@@ -45,7 +45,7 @@ public class ArticleAuthorFilter extends CustomFilter {
             }
             if(!article.getAuthor().getUsername().equals(user.getUsername()) ||
                     (!article.getAuthor().getUsername().equals(user.getUsername()) && !user.getAuthor()) ||
-                    (adminCanModify && user.getAdministrator())){
+                    !(adminCanModify && user.getAdministrator())){
                 attributes.put("forbidden_message","Este articulo no le pertenece.");
                 Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
             }

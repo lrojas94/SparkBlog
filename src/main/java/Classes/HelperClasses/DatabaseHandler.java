@@ -111,11 +111,12 @@ public class DatabaseHandler<T> {
         }
     }
 
-    public boolean deleteObject(T entity) throws Exception {
+    public boolean deleteObjectWithId(Object id) throws Exception {
         boolean success = false;
         EntityManager em = getEntityManager();
         em.getTransaction().begin();
         try {
+            T entity = em.find(entityClass, id);
             em.remove(entity);
             em.getTransaction().commit();
             success = true;

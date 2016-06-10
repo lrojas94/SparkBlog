@@ -6,27 +6,16 @@ import static spark.debug.DebugScreen.enableDebugScreen;
 import Classes.HelperClasses.*;
 import Classes.JsonClasses.*;
 import Classes.JsonClasses.Comment;
-import Classes.data.*;
-import Classes.data.Article;
-import Classes.data.Tag;
-import Classes.data.User;
 import Classes.jpaIntegration.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.query.In;
 import com.j256.ormlite.support.ConnectionSource;
-import com.sun.xml.internal.bind.v2.model.core.ID;
-import org.hibernate.Hibernate;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
-import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -56,7 +45,7 @@ public class Main {
         Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
 
         Preferences userPrefs = Preferences.userRoot();
-        userPrefs.putBoolean("first_run", true);
+        // userPrefs.putBoolean("first_run", true);
         Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
 
         if (isFirstRun) {
@@ -283,7 +272,8 @@ public class Main {
         get("/article/delete/:id",(request, response) -> {
            int id = Integer.parseInt(request.params("id"));
             ArticleHandler articleHandler = ArticleHandler.getInstance();
-            articleHandler.deleteObject(articleHandler.findObjectWithId(id));
+            Article article = articleHandler.findObjectWithId(id);
+            articleHandler.deleteObjectWithId(article.getId());
             //Delete by id:
             request.session(true).attribute("message_type","success");
             request.session(true).attribute("message","Articulo borrado correctamente");
@@ -402,7 +392,7 @@ public class Main {
             Classes.jpaIntegration.User toDelete = userHandler.findObjectWithId(id);
 
             if(toDelete != null){
-                userHandler.deleteObject(toDelete);
+                userHandler.deleteObjectWithId(toDelete);
                 request.session(true).attribute("message_type","success");
                 request.session(true).attribute("message","Borrado exitoso");
                 response.redirect("/admin");
@@ -476,7 +466,7 @@ public class Main {
 
             Classes.jpaIntegration.Comment comment = commentHandler.findObjectWithId(id);
 
-            if(commentHandler.deleteCommentById(id) > 0) {
+            if(commentHandler.deleteObjectWithId(id)) {
                 ActionStatus status = new ActionStatus();
                 status.setStatus("success");
                 status.setReturnObject(comment);
