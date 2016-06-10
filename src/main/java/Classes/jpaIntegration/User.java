@@ -48,7 +48,7 @@ public class User implements Serializable {
     private Boolean author;
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
     private Set<Article> articles = new HashSet<Article>();
-    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author")
     private Set<Comment> comments = new HashSet<Comment>();
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<ArticlePreference> articlePreferences = new HashSet<ArticlePreference>();

@@ -33,11 +33,11 @@ public class Comment implements Serializable {
     @Column(name = "description",nullable = false)
     @Expose
     private String description;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "author",nullable = false)
     @Expose
     private User author;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "article",nullable = false)
     @Expose
     private Article article;

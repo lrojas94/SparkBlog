@@ -476,7 +476,7 @@ public class Main {
 
             Classes.jpaIntegration.Comment comment = commentHandler.findObjectWithId(id);
 
-            if(commentHandler.deleteCommentById(id) == 1) {
+            if(commentHandler.deleteCommentById(id) > 0) {
                 ActionStatus status = new ActionStatus();
                 status.setStatus("success");
                 status.setReturnObject(comment);

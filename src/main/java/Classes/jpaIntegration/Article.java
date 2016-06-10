@@ -56,7 +56,7 @@ public class Article implements Serializable {
     @ManyToMany
     @JoinTable(name = "article_tags")
     private Set<Tag> tags = new HashSet<Tag>();
-    @OneToMany(mappedBy = "article",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article")
     private Set<Comment> comments = new HashSet<Comment>();
     @OneToMany(mappedBy = "article" )
     private Set<ArticlePreference> articlePreferences = new HashSet<>();

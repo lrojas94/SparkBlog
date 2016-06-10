@@ -65,6 +65,26 @@ var Users = function(){ //<-- this is basically a namespace.
 
 var Comments = function(){
     var HelpersNamespace = Helpers();
+    var initArticleCommentDelete = function(e){
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr("href"),
+            dataType: 'json',
+            method: "POST",
+            success: function(data){
+                if(data.status === "success"){
+                    //remove from row.
+                    var table = $('#article-comment-table').DataTable();
+                    var index = table.
+                    column(1).
+                    data().indexOf(data.returnObject.id.toString());
+                    table.row(index).remove().draw();
+                }
+            }
+
+        })
+    };
+
     $("#article-comment-table").dataTable({
         language: HelpersNamespace.DTLanguage,
         pageLength: 5,
@@ -109,7 +129,7 @@ var Comments = function(){
                         commentDelete.remove();
                     }
 
-                    $('#article-comment-table').DataTable().row.add([commentTemplate.html(),Comment.id]).sort().draw();
+                    $('#article-comment-table').DataTable().row.add([commentTemplate.html(),Comment.id.toString()]).sort().draw();
                     $('#add-comment-errors').html("");
                     $('#comment-input').val("");
                 }
@@ -125,25 +145,9 @@ var Comments = function(){
         })
     });
 
-    $('.delete-comment').click(function(e){
-       e.preventDefault();
-        $.ajax({
-            url: $(this).attr("href"),
-            dataType: 'json',
-            method: "POST",
-            success: function(data){
-                if(data.status === "success"){
-                    //remove from row.
-                    var table = $('#article-comment-table').DataTable();
-                    var index = table.
-                        column(1).
-                        data().indexOf(data.returnObject.id.toString());
-                    table.row(index).remove().draw();
-                }
-            }
-
-        })
-    });
+    $('body').on({
+        click : initArticleCommentDelete
+    },'.delete-comment');
 };
 
 var Articles = function(){
