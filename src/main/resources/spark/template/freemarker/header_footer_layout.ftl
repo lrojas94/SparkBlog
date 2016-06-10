@@ -14,7 +14,7 @@
     <#if (logged_in?? && !logged_in) || !(logged_in??)>
     <button id="login_btn" class="btn btn-primary" data-toggle="modal" data-target="#login_modal">Iniciar Sesion</button>
     <#else>
-        <div id="login_status" class="col-xs-2">
+        <div id="login_status" data-user-id="${user.getId()}" class="col-xs-2">
             <a href="/user/${user.getId()}">Saludos ${user.getName()} <i class="fa fa-user"></i></a>
             |
              <a href="/logout">Logout</a>

@@ -153,8 +153,63 @@ var Articles = function(){
         pageLength: 10,
         lengthMenu: [10,25,50],
         ordering: false
+    });
 
-    })
+    var setUserPreference = function(preference){
+        //Gather general info:
+
+        var data = {
+            isArticle : true,
+            preferenceId: $('.article-view-body').data('article-id'),
+            userId: $('#login_status').data('user-id'),
+            preference: preference
+        };
+
+        console.log(data);
+
+        $.ajax({
+            url: "/article/preference",
+            method: "POST",
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(data){
+                //Set article likes/dislikes:
+                $('#like-article .count').text(data.returnObject.likesCount);
+                $('#dislike-article .count').text(data.returnObject.dislikesCount);
+
+                switch(preference){
+                    case "like":
+                        //show other two:
+                        $('#neutral-article,#dislike-article').removeClass("disabled");
+                        $('#like-article').addClass("disabled");
+                        break;
+                    case "dislike":
+                        $('#like-article,#neutral-article').removeClass("disabled");
+                        $('#dislike-article').addClass("disabled");
+                        break;
+                    case "neutral":
+                        $('#like-article,#dislike-article').removeClass("disabled");
+                        $('#neutral-article').addClass("disabled");
+                        break;
+                }
+                console.log(data);
+            }
+
+        });
+    };
+
+    $('#like-article').click(function(e){
+        e.preventDefault();
+        setUserPreference("like");
+    });
+    $('#dislike-article').click(function(e){
+        e.preventDefault();
+        setUserPreference("dislike");
+    });
+    $('#neutral-article').click(function(e){
+        e.preventDefault();
+        setUserPreference("neutral");
+    });
 };
 
 $(function(){

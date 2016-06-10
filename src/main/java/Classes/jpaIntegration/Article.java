@@ -58,7 +58,7 @@ public class Article implements Serializable {
     private Set<Tag> tags = new HashSet<Tag>();
     @OneToMany(mappedBy = "article",cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<Comment>();
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article" )
     private Set<ArticlePreference> articlePreferences = new HashSet<>();
 
     public Article() {}
@@ -137,5 +137,17 @@ public class Article implements Serializable {
 
     public void setArticlePreferences(Set<ArticlePreference> articlePreferences) {
         this.articlePreferences = articlePreferences;
+    }
+
+    public Integer getLikes(){
+        return articlePreferences.stream().filter(articlePreference -> {
+            return articlePreference.getPreference() == Preference.LIKE;
+        }).mapToInt(value -> 1).sum();
+    }
+
+    public Integer getDislikes(){
+        return articlePreferences.stream().filter(articlePreference -> {
+            return articlePreference.getPreference() == Preference.DISLIKE;
+        }).mapToInt(value -> 1).sum();
     }
 }

@@ -52,7 +52,7 @@ public class User implements Serializable {
     private Set<Comment> comments = new HashSet<Comment>();
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<ArticlePreference> articlePreferences = new HashSet<ArticlePreference>();
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user")
     private Set<CommentPreference> commentPreferences = new HashSet<CommentPreference>();
 
     public User() {}
@@ -142,5 +142,26 @@ public class User implements Serializable {
 
     public void setCommentPreferences(Set<CommentPreference> commentPreferences) {
         this.commentPreferences = commentPreferences;
+    }
+
+    public boolean likes(Article article){
+        return articlePreferences.stream()
+                .filter(ap ->
+                     ap.getArticle().getId() == article.getId() && ap.getPreference() == Preference.LIKE
+                ).findFirst().isPresent();
+    }
+
+    public boolean dislikes(Article article){
+        return articlePreferences.stream()
+                .filter(ap -> {
+                    return ap.getArticle().getId() == article.getId() && ap.getPreference() == Preference.DISLIKE;
+                }).findFirst().isPresent();
+    }
+
+    public boolean hasPreference(Article article){
+        return articlePreferences.stream()
+                .filter(ap ->
+                     ap.getArticle().getId() == article.getId() && ap.getPreference() != Preference.NEUTRAL
+                ).findFirst().isPresent();
     }
 }

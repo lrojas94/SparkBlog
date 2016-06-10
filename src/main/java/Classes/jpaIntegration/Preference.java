@@ -1,5 +1,7 @@
 package Classes.jpaIntegration;
 
+import com.google.gson.annotations.SerializedName;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -10,7 +12,10 @@ import java.io.Serializable;
 **/
 
 public enum Preference{
+    @SerializedName("like")
     LIKE,
+    @SerializedName("dislike")
     DISLIKE,
+    @SerializedName("neutral")
     NEUTRAL
 }

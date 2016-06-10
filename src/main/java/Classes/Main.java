@@ -26,6 +26,7 @@ import spark.Response;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -55,13 +56,11 @@ public class Main {
         Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
 
         Preferences userPrefs = Preferences.userRoot();
-//        userPrefs.putBoolean("first_run", true);
+        userPrefs.putBoolean("first_run", true);
         Boolean isFirstRun = userPrefs.getBoolean("first_run", true);
 
         if (isFirstRun) {
             System.out.println("running for the first time");
-            dbHandler.getConnection();
-//            dbHandler.createAllTables();
             Classes.jpaIntegration.User firstUser = new Classes.jpaIntegration.User("admin", "Administrator", "admin", true, true);
             UserHandler userHandler = UserHandler.getInstance();
             userHandler.insertIntoDatabase(firstUser);
@@ -294,6 +293,48 @@ public class Main {
             return "";
         });
 
+        post("/article/preference",(request, response) -> {
+            UserPreference userPreference = gson.fromJson(request.body(),UserPreference.class);
+            ArticleHandler articleHandler = ArticleHandler.getInstance();
+            UserHandler userHandler = UserHandler.getInstance();
+            ArticlePreferenceHandler articlePreferenceHandler = ArticlePreferenceHandler.getInstance();
+
+            ActionStatus status = new ActionStatus();
+            if(!userPreference.isArticle()){
+                status.setStatus("error");
+                status.getErrors().add("Esta ruta solo trabaja con articulos.");
+                return status;
+            }
+
+            Classes.jpaIntegration.User user = userHandler.findObjectWithId(userPreference.getUserId());
+            Classes.jpaIntegration.Article article = articleHandler.findObjectWithId(userPreference.getPreferenceId());
+            ArticlePreference articlePreference = articlePreferenceHandler.findByUserArticle(user.getId(),article.getId());
+            if(articlePreference != null){
+                //Exists
+                articlePreference.setPreference(userPreference.getPreference());
+                articlePreferenceHandler.updateObject(articlePreference);
+            }
+            else{
+                //Create new
+                articlePreference = new ArticlePreference();
+                articlePreference.setPreference(userPreference.getPreference());
+                articlePreference.setArticle(article);
+                articlePreference.setAuthor(user);
+                article.getArticlePreferences().add(articlePreference);
+                user.getArticlePreferences().add(articlePreference);
+                articlePreferenceHandler.insertIntoDatabase(articlePreference);
+
+            }
+
+            status.setStatus("success");
+            HashMap<String,Object> returnData = new HashMap<String, Object>();
+            returnData.put("likesCount",article.getLikes());
+            returnData.put("dislikesCount",article.getDislikes());
+            status.setReturnObject(returnData);
+
+            return status;
+        },gson::toJson);
+
         //--------------------------- ARTICLE CRUD FINISH ----------------------------------------//
 
         post("/login", (request, response) -> {
@@ -329,8 +370,6 @@ public class Main {
 
             return null;
         });
-
-        before("/test",new AuthFilter(new FreeMarkerEngine()));
 
         // -------------------------------- USER CRUD -------------------------------------------------------------- //
         get("/user/:id",(request, response) -> {
@@ -506,10 +545,10 @@ public class Main {
                 System.out.println(e.getMessage());
             }
 
-
             return "";
 
         });
+
     }
 
     private static ModelAndView articleAddEdit(Request request, Response response, Classes.jpaIntegration.Article article, boolean is_edit){

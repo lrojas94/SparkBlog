@@ -4,7 +4,7 @@
             <h2>${article.getTitle()}</h2>
         </div>
     </div>
-    <div class="row article-view-body">
+    <div class="row article-view-body" data-article-id="${article.getId()}">
         <div class="col-xs-12">
             <p>${article.getBody()}</p>
             <p>
@@ -20,16 +20,25 @@
     <#if user??>
         <div class="row pull-right">
             <div class="col-xs-12">
-                <a href="#" class="like-article btn btn-default">
+                <a href="#" id="like-article"
+                   class=" btn btn-default <#if user.likes(article)>disabled</#if>">
                     <p class="text-center text-primary"><i class="fa fa-thumbs-up"></i>
                         <br>
-                    ${article.getLikes()!"0"}
+                    <span class="count">${article.getLikes()!"0"}</span>
                     </p>
                 </a>
-                <a href="#" class="dislike-article btn btn-default">
+                <a href="#" id="dislike-article"
+                   class=" btn btn-default <#if user.dislikes(article)>disabled</#if>">
                     <p class="text-center text-primary"><i class="fa fa-thumbs-down"></i>
                         <br>
-                    ${article.getLikes()!"0"}
+                    <span class="count">${article.getDislikes()!"0"}</span>
+                    </p>
+                </a>
+                <a href="#" id="neutral-article"
+                   class=" btn btn-default <#if !user.hasPreference(article)>disabled</#if>">
+                    <p class="text-center text-primary"><i class="fa fa-meh-o"></i>
+                        <br>
+                        <span class="count">-</span>
                     </p>
                 </a>
             </div>

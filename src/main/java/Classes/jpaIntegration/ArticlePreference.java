@@ -10,7 +10,16 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "article_preference")
+@NamedQueries({
+        @NamedQuery(
+                name = "getAPByUserArticle",
+                query = "SELECT ap FROM ArticlePreference ap WHERE ap.user.id = :userId " +
+                        "AND ap.article.id = :articleId"
+        )
+})
 public class ArticlePreference implements Serializable {
+
+    public static String QUERY_NAME_GET_BY_USER_ARTICLE = "getAPByUserArticle";
 
     @Id
     @GeneratedValue
@@ -18,10 +27,10 @@ public class ArticlePreference implements Serializable {
     @Column(name = "preference",nullable = false)
     @Enumerated(EnumType.STRING)
     private Preference preference;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user",nullable = false)
-    private User author;
-    @ManyToOne(cascade = CascadeType.ALL)
+    private User user;
+    @ManyToOne
     @JoinColumn(name = "article",nullable = false)
     private Article article;
 
@@ -29,7 +38,7 @@ public class ArticlePreference implements Serializable {
 
     public ArticlePreference(Preference preference, User author, Article article) {
         this.setPreference(preference);
-        this.author = author;
+        this.user = author;
         this.article = article;
     }
 
@@ -38,11 +47,11 @@ public class ArticlePreference implements Serializable {
     }
 
     public User getAuthor() {
-        return author;
+        return user;
     }
 
     public void setAuthor(User author) {
-        this.author = author;
+        this.user = author;
     }
 
     public Article getArticle() {

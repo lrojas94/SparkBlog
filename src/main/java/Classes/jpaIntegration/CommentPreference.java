@@ -20,16 +20,16 @@ public class CommentPreference implements Serializable {
     private Preference preference;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user",nullable = false)
-    private User author;
+    private User user;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "comment",nullable = false)
     private Comment comment;
 
     public CommentPreference() {}
 
-    public CommentPreference(Preference preference, User author, Comment comment) {
+    public CommentPreference(Preference preference, User user, Comment comment) {
         this.setPreference(preference);
-        this.author = author;
+        this.user = user;
         this.setComment(comment);
     }
 
@@ -38,11 +38,11 @@ public class CommentPreference implements Serializable {
     }
 
     public User getAuthor() {
-        return author;
+        return user;
     }
 
     public void setAuthor(User author) {
-        this.author = author;
+        this.user = author;
     }
 
     public Preference getPreference() {
