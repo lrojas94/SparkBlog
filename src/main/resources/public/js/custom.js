@@ -67,6 +67,7 @@ var Comments = function(){
     var HelpersNamespace = Helpers();
     var initArticleCommentDelete = function(e){
         e.preventDefault();
+        var tr = $(this).closest('tr');
         $.ajax({
             url: $(this).attr("href"),
             dataType: 'json',
@@ -75,10 +76,7 @@ var Comments = function(){
                 if(data.status === "success"){
                     //remove from row.
                     var table = $('#article-comment-table').DataTable();
-                    var index = table.
-                    column(1).
-                    data().indexOf(data.returnObject.id.toString());
-                    table.row(index).remove().draw();
+                    table.row(tr).remove().draw(false);
                 }
             }
 

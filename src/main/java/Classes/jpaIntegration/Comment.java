@@ -41,7 +41,7 @@ public class Comment implements Serializable {
     @JoinColumn(name = "article",nullable = false)
     @Expose
     private Article article;
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment",cascade = CascadeType.REMOVE)
     private Set<CommentPreference> commentPreferenceSet = new HashSet<>();
 
     public Comment() {}
