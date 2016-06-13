@@ -1,6 +1,7 @@
 <div class="container">
     <div class="row">
         <!-- ARTICULOS -->
+        <div id="tag-id" hidden>${tag.getId()}</div>
         <div class="col-xs-12">
             <div class="pop-out">
                 <div class="col-xs-12 title">

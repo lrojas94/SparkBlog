@@ -230,9 +230,66 @@ var Articles = function(){
     var HelpersNamespace = Helpers();
     $('#article-table').dataTable({
         language: HelpersNamespace.DTLanguage,
-        pageLength: 10,
-        lengthMenu: [10,25,50],
-        ordering: false
+        pageLength: 5,
+        lengthMenu: [5,25,50],
+        searching: false,
+        search: false,
+        ordering: false,
+        saveState: true,
+        serverSide: true,
+        ajax: {
+            url : "/datatable/articles",
+            type: "POST",
+            data: function(data){
+                data['tag'] = $('#tag-id').text();
+                return JSON.stringify(data);
+            }
+        },
+        columnDefs: [
+            {
+                targets : 0,
+                data: function(row,type,val,meta){
+                    console.log(row);
+                    var article = row;
+                    var articleData = [article.id,article.title,article.body,article.author,article.tags];
+                    var articleContainer = $('#article-container-template').clone();
+                    articleContainer.attr("id","");
+                    //Add link:
+                    var articleView = articleContainer.find('.article-view');
+                    articleView.attr("href",articleView.attr("href") + article.id);
+                    //add title:
+                    articleContainer.find('.article-title').append(article.title);
+                    articleContainer.find('.article-preview').append(article.body.substring(0,70));
+                    var author = articleContainer.find('.article-author');
+                    author.attr("href",author.attr("href") + article.author.id);
+                    author.prepend(article.author.username);
+                    articleContainer.find('.article-read-more').attr('href',articleView.attr('href'));
+                    //Only missing tags C:
+                    var articleTags = articleContainer.find('.article-tags');
+                    if(article.tags.length != 0){
+                        //we have at least one tag:
+                        var tagP = articleTags.find('p');
+                        for(i in article.tags){
+                            var tag = article.tags[i];
+                            var Tag = $('#tag-template').clone().attr("id","").removeAttr('hidden');
+                            Tag.append('#' + tag.description).attr('href',Tag.attr('href')+tag.id);
+                            tagP.append(Tag[0].outerHTML + '  ');
+                            console.log(Tag[0].outerHTML)
+                        }
+                    }
+                    else{
+                        articleTags.remove();
+                    }
+
+                    return articleContainer;
+
+
+                },
+                render: function(row,type,val,meta){
+                    return row.html();
+                }
+            }
+        ]
     });
 
     var setUserPreference = function(preference){

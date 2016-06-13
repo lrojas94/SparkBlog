@@ -32,12 +32,28 @@ import java.io.Serializable;
         @NamedQuery(
                 name = "Article.findArticlesInDescOrder",
                 query = "SELECT a FROM Article a ORDER BY a.datePublished DESC"
-        )
+        ),
+        @NamedQuery(
+                name = "Article.count",
+                query = "SELECT count(a) FROM Article a"
+        ),
+        @NamedQuery(
+                name = "Article.findArticlesByTag",
+                query = "SELECT a FROM Article a JOIN  a.tags t where t.id = :tagId"
+        ),
+        @NamedQuery(
+        name = "Article.countArticlesByTag",
+        query = "SELECT count(a) FROM Article a JOIN  a.tags t where t.id = :tagId"
+)
 })
 public class Article implements Serializable {
 
     public static String QUERY_NAME_FIND_ARTICLES_BY_TITLE = "Article.findArticlesByTitle";
     public static String QUERY_NAME_FIND_ARTICLES_IN_DESC_ORDER = "Article.findArticlesInDescOrder";
+    public static String QUERY_NAME_COUNT_ARTICLES = "Article.count";
+    public static String QUERY_NAME_FIND_ARTICLES_BY_TAG = "Article.findArticlesByTag";
+    public static String QUERY_NAME_COUNT_ARTICLES_BY_TAG = "Article.countArticlesByTag";
+
 
     @Id
     @GeneratedValue
@@ -46,19 +62,22 @@ public class Article implements Serializable {
     @Column(name = "title",unique = true)
     @Expose
     private String title;
+    @Expose
     @Column(name = "body",length = 1000)
     private String body;
     @Column(name = "date_published",nullable = false)
     private Date datePublished;
+    @Expose
     @ManyToOne
     @JoinColumn(name = "author",nullable = false)
     private User author;
+    @Expose
     @ManyToMany
     @JoinTable(name = "article_tags")
     private Set<Tag> tags = new HashSet<Tag>();
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article",cascade = CascadeType.REMOVE)
     private Set<Comment> comments = new HashSet<Comment>();
-    @OneToMany(mappedBy = "article" )
+    @OneToMany(mappedBy = "article",cascade = CascadeType.REMOVE)
     private Set<ArticlePreference> articlePreferences = new HashSet<>();
 
     public Article() {}

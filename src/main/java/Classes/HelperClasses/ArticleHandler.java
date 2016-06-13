@@ -45,4 +45,57 @@ public class ArticleHandler extends DatabaseHandler<Article> {
             em.close();
         }
     }
+
+    public List<Article> findArticlesWithLimit(int limit,int offset) {
+        EntityManager em = getEntityManager();
+        try {
+            return (List<Article>) em.createNamedQuery(Article.QUERY_NAME_FIND_ARTICLES_IN_DESC_ORDER)
+                    .setFirstResult(offset)
+                    .setMaxResults(limit)
+                    .getResultList();
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Article> findArticlesByTag(int tagId,int limit,int offset) {
+        EntityManager em = getEntityManager();
+        try {
+            return (List<Article>) em.createNamedQuery(Article.QUERY_NAME_FIND_ARTICLES_BY_TAG)
+                    .setParameter("tagId",tagId)
+                    .setFirstResult(offset)
+                    .setMaxResults(limit)
+                    .getResultList();
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public long articleCount() {
+        EntityManager em = getEntityManager();
+        try {
+            return (long) em.createNamedQuery(Article.QUERY_NAME_COUNT_ARTICLES).getSingleResult();
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
+
+    public long articleTagCount(int tagId) {
+        EntityManager em = getEntityManager();
+        try {
+            return (long) em.createNamedQuery(Article.QUERY_NAME_COUNT_ARTICLES_BY_TAG)
+                    .setParameter("tagId",tagId)
+                    .getSingleResult();
+        } catch (Exception ex) {
+            throw ex;
+        } finally {
+            em.close();
+        }
+    }
 }

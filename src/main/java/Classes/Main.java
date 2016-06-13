@@ -3,6 +3,8 @@ package Classes;
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
+import Classes.DataTables.ReturnData;
+import Classes.DataTables.SentParameters;
 import Classes.HelperClasses.*;
 import Classes.JsonClasses.*;
 import Classes.JsonClasses.Comment;
@@ -171,6 +173,33 @@ public class Main {
         });
 
         //--------------------------- ARTICLE CRUD START ----------------------------------------//
+        post("/datatable/articles",(request, response) -> {
+            try{
+                System.out.println("PARAMETERS HERE o/");
+                SentParameters dtParameters = gson.fromJson(request.body(),SentParameters.class);
+                ArticleHandler articleHandler = ArticleHandler.getInstance();
+                ReturnData dtReturnData = new ReturnData();
+                List<Article> articles = null;
+                if(dtParameters.getTag() != ""){
+                    int tag = Integer.parseInt(dtParameters.getTag());
+                    articles = articleHandler.findArticlesByTag(tag,dtParameters.getLength(),dtParameters.getStart());
+                    dtReturnData.setRecordsTotal(articleHandler.articleTagCount(tag));
+                }
+                else{
+                    articles = articleHandler.findArticlesWithLimit(dtParameters.getLength(),dtParameters.getStart());
+                    dtReturnData.setRecordsTotal(articleHandler.articleCount());
+                }
+                dtReturnData.setData(articles.toArray());
+                dtReturnData.setDraw(dtParameters.getDraw());
+                dtReturnData.setRecordsFiltered(dtReturnData.getRecordsTotal());
+                dtReturnData.setError(null);
+                return dtReturnData;
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+            return "";
+        },gson::toJson);
 
         get("/article/view/:id",(request, response) -> {
             Map<String, Object> attributes = request.attribute(MODEL_PARAM);
