@@ -180,7 +180,7 @@ public class Main {
                 ArticleHandler articleHandler = ArticleHandler.getInstance();
                 ReturnData dtReturnData = new ReturnData();
                 List<Article> articles = null;
-                if(dtParameters.getTag() != ""){
+                if(!dtParameters.getTag().equals("")){
                     int tag = Integer.parseInt(dtParameters.getTag());
                     articles = articleHandler.findArticlesByTag(tag,dtParameters.getLength(),dtParameters.getStart());
                     dtReturnData.setRecordsTotal(articleHandler.articleTagCount(tag));
