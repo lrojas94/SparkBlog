@@ -12,12 +12,14 @@ import Classes.jpaIntegration.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.j256.ormlite.support.ConnectionSource;
+import org.eclipse.jetty.websocket.api.Session;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -57,6 +59,8 @@ public class Main {
             userHandler.insertIntoDatabase(firstUser);
             userPrefs.putBoolean("first_run", false);
         }
+
+        webSocket("/chatRoom", WebSocketHandler.class);
 
         get("/logout", (request, response) -> {
             request.session(true).attribute("user",null);
@@ -104,6 +108,11 @@ public class Main {
 
 
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
+        });
+
+        get("/sendMessage", (request, response) -> {
+            ChatHandler.broadcastMessage("Server", "Test Message");
+            return "Mensaje enviado";
         });
 
         get("/signup",(request, response) -> {
