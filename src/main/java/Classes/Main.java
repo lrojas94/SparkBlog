@@ -62,6 +62,12 @@ public class Main {
 
         webSocket("/chatRoom", WebSocketHandler.class);
 
+        get("/chatRoom", (request, response) -> {
+            Map<String,Object> attributes = request.attribute(MODEL_PARAM);
+            attributes.put("template_name","./chat/chat_room.ftl");
+            return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
+        });
+
         get("/logout", (request, response) -> {
             request.session(true).attribute("user",null);
             request.session(true).attribute("logged_in",false);
@@ -108,11 +114,6 @@ public class Main {
 
 
             return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
-        });
-
-        get("/sendMessage", (request, response) -> {
-            ChatHandler.broadcastMessage("Server", "Test Message");
-            return "Mensaje enviado";
         });
 
         get("/signup",(request, response) -> {

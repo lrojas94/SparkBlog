@@ -20,7 +20,7 @@
             <property name="hibernate.enable_lazy_load_no_trans" value="true" />
             <!--<property name="hibernate.hbm2ddl.auto" value="create-drop" />-->
             <!--<property name="hibernate.show_sql" value="true"/>-->
-            <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            <!--<property name="javax.persistence.schema-generation.database.action" value="create"/>-->
             <!--<property name="eclipselink.logging.level" value="ALL" />-->
         </properties>
     </persistence-unit>

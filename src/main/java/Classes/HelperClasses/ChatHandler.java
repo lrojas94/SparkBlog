@@ -16,12 +16,12 @@ import java.io.IOException;
 
 public class ChatHandler {
 
-    public static List<Session>  connectedUsers = new ArrayList<>();
+    public static List<Session> connectedUsers = new ArrayList<>();
 
     public static void broadcastMessage(String sender, String message) throws Exception {
         try {
             for (Session user : connectedUsers) {
-                user.getRemote().sendString(message);
+                user.getRemote().sendString("Sender: " + sender + "Message: " + message);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -21,12 +21,14 @@ public class WebSocketHandler {
     public void onConnect(Session session) throws Exception {
         System.out.println("Connecting user: " + session.getLocalAddress().getAddress().toString());
         ChatHandler.connectedUsers.add(session);
+        ChatHandler.broadcastMessage("Server", "someone joined the chat");
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) throws Exception {
-        System.out.println("Chat Closed with status (" + statusCode + "): " + reason);
+        System.out.println("Chat Closed with status code (" + statusCode + "): " + reason);
         ChatHandler.connectedUsers.remove(session);
+        ChatHandler.broadcastMessage("Server", "someone left the chat");
     }
 
     @OnWebSocketMessage
