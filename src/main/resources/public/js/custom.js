@@ -249,7 +249,6 @@ var Articles = function(){
             {
                 targets : 0,
                 data: function(row,type,val,meta){
-                    console.log(row);
                     var article = row;
                     var articleData = [article.id,article.title,article.body,article.author,article.tags];
                     var articleContainer = $('#article-container-template').clone();
@@ -274,7 +273,6 @@ var Articles = function(){
                             var Tag = $('#tag-template').clone().attr("id","").removeAttr('hidden');
                             Tag.append('#' + tag.description).attr('href',Tag.attr('href')+tag.id);
                             tagP.append(Tag[0].outerHTML + '  ');
-                            console.log(Tag[0].outerHTML)
                         }
                     }
                     else{
@@ -302,7 +300,6 @@ var Articles = function(){
             preference: preference
         };
 
-        console.log(data);
 
         $.ajax({
             url: "/article/preference",
@@ -329,7 +326,6 @@ var Articles = function(){
                         $('#neutral-article').addClass("disabled");
                         break;
                 }
-                console.log(data);
             }
 
         });

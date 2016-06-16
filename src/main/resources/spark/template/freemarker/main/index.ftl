@@ -1,3 +1,4 @@
+<#import "../macros/chat.ftl" as Chat>
 <div class="container">
     <div class="row">
         <!-- ARTICULOS -->
@@ -13,3 +14,5 @@
         </div>
     </div>
 </div>
+
+<@Chat.chatBox></@Chat.chatBox>

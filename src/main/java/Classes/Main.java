@@ -8,18 +8,17 @@ import Classes.DataTables.SentParameters;
 import Classes.HelperClasses.*;
 import Classes.JsonClasses.*;
 import Classes.JsonClasses.Comment;
+import Classes.WebSocket.WebSocketHandler;
 import Classes.jpaIntegration.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.j256.ormlite.support.ConnectionSource;
-import org.eclipse.jetty.websocket.api.Session;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 import spark.template.freemarker.FreeMarkerEngine;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -39,6 +38,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
+        webSocket("/chatRoom", WebSocketHandler.class);
         staticFiles.location("/public");
         // Remove on production
         enableDebugScreen();
@@ -60,7 +60,7 @@ public class Main {
             userPrefs.putBoolean("first_run", false);
         }
 
-        webSocket("/chatRoom", WebSocketHandler.class);
+
 
         get("/chatRoom", (request, response) -> {
             Map<String,Object> attributes = request.attribute(MODEL_PARAM);

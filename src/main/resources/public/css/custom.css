@@ -54,6 +54,35 @@ html,body{
     z-index: 99999;
 }
 
+#chat{
+    bottom: 0;
+    right: 10px;
+    position: fixed;
+    z-index: 999999;
+    background: #ecf0f1;
+    width: 300px;
+}
+
+#chat-box{
+    padding: 5px;
+}
+
+#chat-msgs{
+    overflow-y: scroll;
+    height: 300px;
+    padding: 0;
+}
+
+#chat-msgs li{
+    list-style: none;
+    padding-left: 2px;
+}
+
+#chat-msgs li:nth-child(odd){
+    background: rgba(74,163,223,0.15);
+}
+
+
 #login_status a:hover{
     text-decoration: none;
     cursor: pointer;
