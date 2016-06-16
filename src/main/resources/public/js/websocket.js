@@ -18,6 +18,9 @@ var userWebSocketHandler = {
         msgContainer.find('.chatUsername').append(data.userInfo.username);
         msgContainer.find('li').append(data.message);
         $('#chat-msgs').append(msgContainer.html());
+        $('#chat-msgs').animate({
+            scrollTop: $('#chat-msgs').scrollTop() + $('#chat-msgs li:last').position().top
+        }, 200);
     },
     sendMessage : function(jsonData){ //Utility function to receive data.
         jsonData = jsonData || userWebSocketHandler.preparedData;
@@ -40,7 +43,7 @@ var userWebSocketHandler = {
     },
     onOpen : function(){
         //What would happen when connection is opened?
-        console.log("Connectin opened!");
+        console.log("Connection opened!");
 
         var data = {
             type: "INIT",
@@ -68,16 +71,36 @@ var userWebSocketHandler = {
 
 $(function(){
    //initialize all websocket behavior here:
-    //
+
+    // When chat init is pressed
     $('#chatInit').click(function(e){
        userWebSocketHandler.init();
     });
-    
+
+    // When ENTER is pressed
+    $('#chatUsername').keypress(function (e) {
+        if (e.keyCode === 13) {
+            userWebSocketHandler.init();
+        }
+    });
+
+    // When send button is pressed
     $('#chatSendMsg').click(function(e){
         var message = $('#chatMsg').val();
         $('#chatMsg').val("");
         var data = userWebSocketHandler.prepareMessage(message);
         userWebSocketHandler.sendMessage(data);
         userWebSocketHandler.appendMessage(data);
-    })
+    });
+
+    // When ENTER is pressed
+    $('#chatMsg').keypress(function (e) {
+        if (e.keyCode === 13) {
+            var message = $(this).val();
+            $(this).val("");
+            var data = userWebSocketHandler.prepareMessage(message);
+            userWebSocketHandler.sendMessage(data);
+            userWebSocketHandler.appendMessage(data);
+        }
+    });
 });

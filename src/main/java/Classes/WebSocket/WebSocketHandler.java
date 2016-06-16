@@ -14,7 +14,7 @@ import java.io.IOException;
  * Created by MEUrena on 6/13/16.
  * All rights reserved.
  */
-@WebSocket
+@WebSocket(maxIdleTime = 600000)
 public class WebSocketHandler {
 
     private static long ids = 0;
@@ -31,7 +31,6 @@ public class WebSocketHandler {
     public void onClose(Session session, int statusCode, String reason) throws Exception {
         System.out.println("Chat Closed with status code (" + statusCode + "): " + reason);
         ChatHandler.connectedUsers.remove(session);
-        ChatHandler.broadcastMessage("Server", "someone left the chat");
     }
 
     @OnWebSocketMessage
@@ -64,7 +63,8 @@ public class WebSocketHandler {
         }
         catch (Exception e){
             e.printStackTrace();
+            throw e;
         }
+    }
 
-        }
 }

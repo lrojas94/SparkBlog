@@ -60,14 +60,6 @@ public class Main {
             userPrefs.putBoolean("first_run", false);
         }
 
-
-
-        get("/chatRoom", (request, response) -> {
-            Map<String,Object> attributes = request.attribute(MODEL_PARAM);
-            attributes.put("template_name","./chat/chat_room.ftl");
-            return renderer.render(new ModelAndView(attributes, BASE_LAYOUT));
-        });
-
         get("/logout", (request, response) -> {
             request.session(true).attribute("user",null);
             request.session(true).attribute("logged_in",false);
