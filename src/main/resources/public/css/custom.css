@@ -59,7 +59,8 @@ html,body{
     right: 10px;
     position: fixed;
     z-index: 999999;
-    background: #ecf0f1;
+    background: #34495e;
+    color: white;
     width: 300px;
 }
 
@@ -76,6 +77,10 @@ html,body{
 #chat-msgs li{
     list-style: none;
     padding-left: 2px;
+}
+
+#chat-msgs small{
+    color: #f1c40f!important;
 }
 
 #chat-msgs li:nth-child(odd){

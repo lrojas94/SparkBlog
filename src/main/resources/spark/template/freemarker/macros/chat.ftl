@@ -24,7 +24,7 @@
 
 <div id="chatMessageTemplate" hidden>
     <li>
-        <small class="chatUsername"></small>
+        <small class="chatUsername text-primary"></small>
         <br>
     </li>
 </div>
