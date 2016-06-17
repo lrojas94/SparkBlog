@@ -5,5 +5,6 @@ package Classes.HelperClasses;
  */
 public enum AuthRoles{
     ADMIN,
-    AUTHOR
+    AUTHOR,
+    AUTHOR_ADMIN
 }

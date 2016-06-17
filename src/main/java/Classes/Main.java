@@ -60,6 +60,8 @@ public class Main {
             userPrefs.putBoolean("first_run", false);
         }
 
+
+
         get("/logout", (request, response) -> {
             request.session(true).attribute("user",null);
             request.session(true).attribute("logged_in",false);
@@ -95,6 +97,19 @@ public class Main {
                 Classes.jpaIntegration.User user = userHandler.findObjectWithId(currentUser.getId());
                 request.session(true).attribute("user",user);
             }
+        });
+
+        /*
+        WEBSOCKET
+         */
+        before("/chat",new AuthFilter(renderer,new HashSet<AuthRoles>(){{
+            add(AuthRoles.AUTHOR_ADMIN);
+        }}));
+
+        get("/chat",(request, response) -> {
+            Map<String,Object> attributes = request.attribute(MODEL_PARAM);
+            attributes.put("template_name","chat/index.ftl");
+            return renderer.render(new ModelAndView(attributes,BASE_LAYOUT));
         });
 
         get("/",(request,response) -> {

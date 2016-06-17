@@ -1,3 +1,4 @@
+<#import "../macros/chat.ftl" as Chat>
 <div class="container pop-out">
     <div class="row article-view-header">
         <div class="col-xs-12">
@@ -134,3 +135,6 @@
     </span>
     </p>
 </div>
+
+
+<@Chat.chatBox></@Chat.chatBox>

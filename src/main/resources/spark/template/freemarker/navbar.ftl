@@ -21,9 +21,13 @@
                 <#if user?? && user.getAuthor()>
                     <li><a href="/article/add"><i class="fa fa-pencil"></i> Agregar Articulo</a></li>
                 </#if>
+                <#if user?? && (user.getAdministrator() || user.getAuthor())>
+                    <li><a href="/chat"><i class="fa fa-comment"></i> Chat</a></li>
+                </#if>
                 <#if user?? && user.getAdministrator()>
                     <li><a href="/admin"><i class="fa fa-users"></i> Sitio Admin</a></li>
                 </#if>
+
             </ul>
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

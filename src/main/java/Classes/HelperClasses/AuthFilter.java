@@ -51,6 +51,12 @@ public class AuthFilter extends CustomFilter {
                         spark.Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
                     }
                     break;
+                case AUTHOR_ADMIN:
+                    if(!user.getAdministrator() && !user.getAuthor()){
+                        attributes.put("forbidden_message","USTED NO NI AUTOR NI ADMINISTRADOR");
+                        spark.Spark.halt(401,templateEngine.render(new ModelAndView(attributes,Main.BASE_LAYOUT)));
+                    }
+
             }
         }
     }

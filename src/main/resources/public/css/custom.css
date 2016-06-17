@@ -68,13 +68,13 @@ html,body{
     padding: 5px;
 }
 
-#chat-msgs{
-    overflow-y: scroll;
+#chat-msgs,#admin-chat-msgs{
+    overflow-y: auto;
     height: 300px;
     padding: 0;
 }
 
-#chat-msgs li{
+#chat-msgs li,#admin-chat-msgs li{
     list-style: none;
     padding-left: 2px;
 }
@@ -83,10 +83,14 @@ html,body{
     color: #f1c40f!important;
 }
 
-#chat-msgs li:nth-child(odd){
+#chat-msgs li:nth-child(odd),#admin-chat-msgs li:nth-child(odd){
     background: rgba(74,163,223,0.15);
 }
 
+#admin-available-chats {
+    max-height: 300px;
+    overflow-y: auto;
+}
 
 #login_status a:hover{
     text-decoration: none;
@@ -142,6 +146,23 @@ html,body{
     margin: auto;
 }
 /* BOOTSTRAP MODS */
+
+.list-group-item:first-child,.list-group-item:last-child {
+    border-radius: 0px!important;
+}
+
+.panel-body {
+    padding: 0!important;
+}
+
+.panel{
+    border-radius: 0!important;
+}
+
+.panel ul{
+    margin-bottom: 0!important;
+}
+
 .container-fluid{
     margin-left: 0px;
     margin-right: 0px;

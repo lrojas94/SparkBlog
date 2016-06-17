@@ -30,7 +30,24 @@ public class WebSocketHandler {
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) throws Exception {
         System.out.println("Chat Closed with status code (" + statusCode + "): " + reason);
-        ChatHandler.connectedUsers.remove(session);
+        ChatHandler.userInfos.stream()
+                .filter(userInfo -> userInfo.getSession().equals(session))
+                .findFirst()
+                .map(userInfo -> {
+                    if(!userInfo.isAdmin()){
+                        //should broadcast to admin:
+                        Message msg = new Message();
+                        msg.setType(Message.Type.USER_LEFT);
+                        msg.setUserInfo(userInfo);
+                        msg.setMessage("");
+                        ChatHandler.sendMessage(msg);
+                    }
+                    else{
+                        ChatHandler.broadcastToAllNonAdmins("ADMIN - " + userInfo.getUsername() + " - HA DEJADO EL CHAT");
+                    }
+                    ChatHandler.userInfos.remove(userInfo);
+                    return userInfo;
+                });
     }
 
     @OnWebSocketMessage
@@ -44,21 +61,30 @@ public class WebSocketHandler {
                     userInfo.setSession(session);
                     userInfo.setId(ids++);
                     userInfo.setUsername(msg.getUserInfo().getUsername());
-                    ChatHandler.userInfo.add(userInfo);
+                    userInfo.setAdmin(msg.getUserInfo().isAdmin());
                     msg.setUserInfo(userInfo);
                     msg.setTo(userInfo.getUsername());
+                    ChatHandler.userInfos.add(userInfo);
+
+                    if(userInfo.isAdmin()){
+                        msg.setOnlineUsers(ChatHandler.getNonAdmins());
+                    }
+                    else
+                    {
+                        // Tell admins:
+                        msg.setType(Message.Type.USER_JOINED);
+                        ChatHandler.sendMessage(msg);
+                        //reset to default
+                        msg.setType(Message.Type.INIT);
+                    }
+
                     //Return it:
                     ChatHandler.sendMessage(msg);
                     break;
-                case MESSAGE:
-                    /*
-                    THIS IS FOR TESTING PURPOSES ONLY.
-                    IDEALLY, IF USER IS NOT ADMIN, THEN THIS SHOULD BE REDIRECTED TO ALL
-                    ADMINS. ELSE, MESSAGE DATA SHOULD ALREADY CONTAIN A TARGET USER (TO).
-                     */
-                    msg.setMessage("REDIRECT FROM SERVER: " + msg.getMessage());
-                    msg.setTo(msg.getUserInfo().getUsername()); //REDIRECT MESSAGE
+                case ADMIN_MESSAGE:
+                case USER_MESSAGE:
                     ChatHandler.sendMessage(msg);
+                    break;
             }
         }
         catch (Exception e){

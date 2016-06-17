@@ -8,7 +8,7 @@
             </div>
             <button class="btn btn-default btn-block" id="chatInit">Iniciar Chat</button>
         </div>
-        <div id="chat-active" style="display: none;">
+        <div id="chat-active" style="display: none;" >
             <ul id="chat-msgs">
             </ul>
             <div class="input-group">
